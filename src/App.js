@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import Button from "@material-ui/core/Button";
+import TextField from "@material-ui/core/TextField";
+import NavBar from "./Components/NavBar/NavBar";
 import "./App.css";
 import * as calc from "./logic/calc";
 
@@ -20,18 +21,6 @@ class App extends Component {
 
   calculate(e) {
     e.preventDefault();
-
-    var letters = [];
-    letters.push({ letter: "a", prob: 0.15 });
-    letters.push({ letter: "b", prob: 0.04 });
-    letters.push({ letter: "c", prob: 0.26 });
-    letters.push({ letter: "d", prob: 0.05 });
-    letters.push({ letter: "e", prob: 0.5 });
-
-    var result = calc.generateStringWithGivenProb(letters, 1000);
-    console.log(result);
-
-    calc.calculateHuffmanCodeForString(result);
   }
   downloadAsTxt(text) {
     const element = document.createElement("a");
@@ -43,17 +32,17 @@ class App extends Component {
   }
   render() {
     return (
-      <div className="App">
-        <input
-          value={this.state.inputValue}
-          onChange={this.handleChange}
-          placeholder="testing"
-        />
-
-        <Button color="primary" onClick={this.handleCalc} variant="contained">
-          Pobierz wyniki obliczeń
-        </Button>
-      </div>
+      <main className="App">
+        <nav className="app-nav">
+          <NavBar />
+        </nav>
+        <div className="app-main">
+          <TextField label="Name" />
+        </div>
+        <div className="app-bottom">
+          <TextField label="Name" />
+        </div>
+      </main>
     );
   }
 }

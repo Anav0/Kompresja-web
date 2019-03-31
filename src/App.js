@@ -1,27 +1,18 @@
 import React, { Component } from "react";
-import TextField from "@material-ui/core/TextField";
 import NavBar from "./Components/NavBar/NavBar";
+import BottomPanel from "./Components/BottomPanel/BottomPanel";
+import ResultsScreen from "./Components/ResultsScreen/ResultsScreen";
 import "./App.css";
-import * as calc from "./logic/calc";
 
 class App extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
-      inputValue: ""
+      results: []
     };
-    this.handleChange = this.handleChange.bind(this);
-    this.handleCalc = this.calculate.bind(this);
   }
 
-  handleChange(e) {
-    e.preventDefault();
-    this.setState({ inputValue: e.target.value });
-  }
-
-  calculate(e) {
-    e.preventDefault();
-  }
   downloadAsTxt(text) {
     const element = document.createElement("a");
     const file = new Blob([text], { type: "text/plain" });
@@ -30,18 +21,24 @@ class App extends Component {
     document.body.appendChild(element); // Required for this to work in FireFox
     element.click();
   }
+  displayData(data) {
+    console.log("DATA", data);
+
+    this.setState((state, props) => ({
+      results: data
+    }));
+  }
   render() {
     return (
       <main className="App">
         <nav className="app-nav">
           <NavBar />
         </nav>
-        <div className="app-main">
-          <TextField label="Name" />
-        </div>
-        <div className="app-bottom">
-          <TextField label="Name" />
-        </div>
+        <ResultsScreen data={this.state.results} className="app-main" />
+        <BottomPanel
+          onCalculate={data => this.displayData(data)}
+          className="app-bottom"
+        />
       </main>
     );
   }

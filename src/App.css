@@ -7,15 +7,19 @@
 }
 
 .app-bottom {
-  background-color: lightgray;
   grid-row: 3;
 }
 
 .app-main {
-  background-color: lightslategray;
   grid-row: 2;
 }
 
 .app-nav {
   grid-row: 1;
+}
+.app-bottom,
+.app-nav,
+.app-main {
+  width: 100%;
+  height: 100%;
 }

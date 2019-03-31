@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Button from "@material-ui/core/Button";
 import "./App.css";
 import * as calc from "./logic/calc";
 
@@ -19,8 +20,8 @@ class App extends Component {
 
   calculate(e) {
     e.preventDefault();
-    const results = calc.breakSentenceDown(this.state.inputValue);
-    console.log(results);
+
+    console.log(calc.calculateHuffmanCodeForString(this.state.inputValue));
   }
   downloadAsTxt(text) {
     const element = document.createElement("a");
@@ -38,7 +39,10 @@ class App extends Component {
           onChange={this.handleChange}
           placeholder="testing"
         />
-        <button onClick={this.handleCalc}>Pobierz wyniki obliczeń</button>
+
+        <Button color="primary" onClick={this.handleCalc} variant="contained">
+          Pobierz wyniki obliczeń
+        </Button>
       </div>
     );
   }

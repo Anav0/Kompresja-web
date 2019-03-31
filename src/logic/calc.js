@@ -1,4 +1,4 @@
-export function breakSentenceDown(sentence, trimSentence = true) {
+export function breakDownToLetters(sentence, trimSentence = true) {
   if (isEmpty(sentence)) return;
 
   if (trimSentence) sentence = sentence.trim();
@@ -28,43 +28,115 @@ export function breakSentenceDown(sentence, trimSentence = true) {
   return letters;
 }
 
-export function calculateEntropy(sentence) {
+export function calculateEntropyForString(sentence) {
   if (isEmpty(sentence)) return;
 
-  const brokenDownSentence = breakSentenceDown(sentence);
-  console.log(brokenDownSentence);
-  if (!brokenDownSentence) return;
+  const letters = breakDownToLetters(sentence);
+  if (!letters) return;
+
+  return calculateEntropyForLetters(letters);
+}
+
+export function calculateEntropyForLetters(letters) {
+  if (!letters) return;
+
+  if (probGreaterThanOne(letters)) return;
 
   var entropy = 0;
-
-  for (var letter of brokenDownSentence) {
+  for (var letter of letters) {
+    if (letter.prob == 0) continue;
     entropy -= letter.prob * (Math.log(letter.prob) / Math.log(2));
   }
-
   return entropy;
 }
 
-export function loadTxtFile() {
-  const file = document.getElementById("file").files[0];
-  const result = document.getElementById("result");
-  const reader = new FileReader();
-  reader.addEventListener("load", () => {
-    result.innerHTML = reader.result;
-  });
-  reader.readAsText(file, "UTF-8");
+export function calculateHuffmanCodeForString(sentence) {
+  var letters = breakDownToLetters(sentence);
+
+  return calculateHuffmanCodeForLetters(letters);
+}
+
+export function calculateHuffmanCodeForLetters(letters) {
+  if (!letters) return;
+
+  console.log("Huffman encoding");
+  console.log(letters);
+  var fullLength = letters.length;
+  for (let i = 0; i < fullLength; i++) {
+    //Sort by probability descending
+    letters.sort((a, b) => {
+      return b.prob - a.prob;
+    });
+
+    //if i=n-2
+    if (letters.length == 2) break;
+
+    var last1 = letters[letters.length - 1];
+    var last2 = letters[letters.length - 2];
+
+    last1.code = "";
+    last2.code = "";
+
+    letters = letters.slice(0, letters.length - 2);
+
+    letters.push({
+      letter: last1.letter + last2.letter,
+      prob: +last1.prob + +last2.prob,
+      code: "",
+      combines: [last1, last2]
+    });
+
+    console.log(letters);
+  }
+
+  console.log("ASSIGN CODE!!!!!!");
+  letters[0].code = "1";
+  letters[1].code = "0";
+  console.log(letters);
+
+  //Przypożądkuj słowa kodowe
+  while (letters.length !== fullLength) {
+    //Sort by probability descending
+    letters.sort((a, b) => {
+      return b.letter.length - a.letter.length;
+    });
+
+    //Get first letter
+    var firstLetter = letters[0];
+
+    //Remove it from array
+    letters = letters.slice(1, letters.length);
+    //Assign code value
+    firstLetter.combines[0].code += firstLetter.code + "0";
+    firstLetter.combines[1].code += firstLetter.code + "1";
+
+    //Add letters to array
+    letters.push(firstLetter.combines[0]);
+    letters.push(firstLetter.combines[1]);
+
+    console.log(letters);
+  }
 }
 
 export function generateRandomAsciiString(length = 100) {
   let output = "";
-
   for (let index = 0; index < length; index++) {
     output = output.concat(String.fromCharCode(getRndInteger(32, 127)));
   }
-
   return output;
 }
 
-//console.log(calculateEntropy("123234545678989a"));
+function probGreaterThanOne(letters) {
+  var sum = letters.reduce((prev, curr) => {
+    return prev + +curr.prob;
+  }, 0);
+  if (sum > 1) {
+    console.error("Probability greater than one");
+    return true;
+  }
+
+  return false;
+}
 
 function isEmpty(str) {
   return !str || str.length === 0;

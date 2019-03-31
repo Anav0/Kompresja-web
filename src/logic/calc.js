@@ -116,6 +116,27 @@ export function calculateHuffmanCodeForLetters(letters) {
 
     console.log(letters);
   }
+
+  return letters;
+}
+
+export function calculateAverageCodeLength(letters) {
+  var output = 0;
+  if (!letters) return;
+
+  for (var letter of letters) {
+    output += letter.prob * letter.code.length;
+  }
+
+  return output;
+}
+
+export function calculateRedundancy(letters) {
+  if (!letters) return;
+  var codeLength = calculateAverageCodeLength(letters);
+  var entropy = calculateEntropyForLetters(letters);
+
+  return Math.abs(entropy - codeLength);
 }
 
 export function generateRandomAsciiString(length = 100) {
@@ -123,6 +144,26 @@ export function generateRandomAsciiString(length = 100) {
   for (let index = 0; index < length; index++) {
     output = output.concat(String.fromCharCode(getRndInteger(32, 127)));
   }
+  return output;
+}
+
+export function generateStringWithGivenProb(letters, length) {
+  var output = "";
+
+  letters[0].dyst = letters[0].prob;
+
+  for (let i = 1; i < letters.length; i++) {
+    letters[i].dyst = letters[i - 1].dyst + +letters[i].prob;
+  }
+
+  for (let j = 0; j < length; j++) {
+    var luck = Math.random();
+    let j = 0;
+
+    while (luck > letters[j].dyst) j++;
+    output += letters[j].letter;
+  }
+
   return output;
 }
 

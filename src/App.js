@@ -21,7 +21,17 @@ class App extends Component {
   calculate(e) {
     e.preventDefault();
 
-    console.log(calc.calculateHuffmanCodeForString(this.state.inputValue));
+    var letters = [];
+    letters.push({ letter: "a", prob: 0.15 });
+    letters.push({ letter: "b", prob: 0.04 });
+    letters.push({ letter: "c", prob: 0.26 });
+    letters.push({ letter: "d", prob: 0.05 });
+    letters.push({ letter: "e", prob: 0.5 });
+
+    var result = calc.generateStringWithGivenProb(letters, 1000);
+    console.log(result);
+
+    calc.calculateHuffmanCodeForString(result);
   }
   downloadAsTxt(text) {
     const element = document.createElement("a");

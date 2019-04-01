@@ -7,8 +7,7 @@ class BottomPanel extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      inputValue: "",
-      resultData: []
+      inputValue: ""
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleCalculate = this.calculate.bind(this);
@@ -22,10 +21,6 @@ class BottomPanel extends React.Component {
     let calculationRes = calc.calculateHuffmanCodeForString(
       this.state.inputValue
     );
-    this.setState((state, props) => ({
-      resultData: calculationRes
-    }));
-
     //Invoke callback to parent
     this.props.onCalculate(calculationRes);
   }

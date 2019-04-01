@@ -23,6 +23,12 @@ class App extends Component {
   }
   displayData(data) {
     console.log("DATA", data);
+    let i = 0;
+
+    data.forEach(x => {
+      x.id = i;
+      i++;
+    });
 
     this.setState((state, props) => ({
       results: data

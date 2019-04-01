@@ -37,13 +37,11 @@ class App extends Component {
   render() {
     return (
       <main className="App">
-        <nav className="app-nav">
-          <NavBar />
-        </nav>
+        <NavBar className="app-nav" />
         <ResultsScreen data={this.state.results} className="app-main" />
         <BottomPanel
-          onCalculate={data => this.displayData(data)}
           className="app-bottom"
+          onCalculate={data => this.displayData(data)}
         />
       </main>
     );

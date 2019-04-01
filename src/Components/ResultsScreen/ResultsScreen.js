@@ -203,6 +203,8 @@ class EnhancedTable extends React.Component {
 
   render() {
     const { classes, data } = this.props;
+    classes.root += " " + this.props.className;
+    classes.root += " resultScreen-table";
     const { order, orderBy, rowsPerPage, page } = this.state;
     const emptyRows =
       rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);

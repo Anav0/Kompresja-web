@@ -1,7 +1,20 @@
 import React from "react";
+import PropTypes from "prop-types";
+import { withStyles } from "@material-ui/core/styles";
 import "./BottomPanel.css";
-import { TextField, Button } from "@material-ui/core";
 import * as calc from "./../../logic/calc";
+import Paper from "@material-ui/core/Paper";
+import InputBase from "@material-ui/core/InputBase";
+
+const styles = {
+  root: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "100%"
+  }
+};
 
 class BottomPanel extends React.Component {
   constructor(props) {
@@ -17,7 +30,7 @@ class BottomPanel extends React.Component {
     this.setState({ inputValue: e.target.value });
   }
   calculate(e) {
-    e.preventDefault();
+    if (e.key !== "Enter") return;
     let calculationRes = calc.calculateHuffmanCodeForString(
       this.state.inputValue
     );
@@ -25,24 +38,28 @@ class BottomPanel extends React.Component {
     this.props.onCalculate(calculationRes);
   }
   render() {
+    const { classes } = this.props;
+    classes.root += " " + this.props.className;
+    classes.root += " bottomPanel-container";
     return (
-      <div className="bottomPanel-container">
-        <TextField
-          value={this.state.inputValue}
-          onChange={this.handleChange}
-          type="text"
-          label="Wprowadź tekst"
-          variant="filled"
-        />
-        <Button
-          onClick={this.handleCalculate}
-          variant="contained"
-          color="primary"
-        >
-          Wykonaj obliczenia
-        </Button>
+      <div className={classes.root}>
+        <Paper className={"bottomPanel-inputContainer"} elevation={1}>
+          <InputBase
+            className={"bottomPanel-input"}
+            value={this.state.inputValue}
+            onChange={this.handleChange}
+            type="text"
+            placeholder="Wprowadź zdanie do przetworzenia"
+            variant="filled"
+            onKeyPress={this.handleCalculate}
+          />
+        </Paper>
       </div>
     );
   }
 }
-export default BottomPanel;
+BottomPanel.propTypes = {
+  classes: PropTypes.object.isRequired
+};
+
+export default withStyles(styles)(BottomPanel);

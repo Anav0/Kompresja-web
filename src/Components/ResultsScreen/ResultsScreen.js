@@ -178,7 +178,7 @@ class EnhancedTable extends React.Component {
       orderBy: "letter",
       data: this.props.data,
       page: 0,
-      rowsPerPage: 10
+      rowsPerPage: 5
     };
   }
 
@@ -229,7 +229,7 @@ class EnhancedTable extends React.Component {
                         {n.letter}
                       </TableCell>
                       <TableCell align="right">{n.occures}</TableCell>
-                      <TableCell align="right">{n.prob}</TableCell>
+                      <TableCell align="right">{+n.prob.toFixed(3)}</TableCell>
                       <TableCell align="right">{n.code}</TableCell>
                     </TableRow>
                   );

@@ -1,12 +1,12 @@
-.bottomPanel-container {
+.HandInput-container {
   width: 100%;
   height: 100%;
 }
-.bottomPanel-input {
+.HandInput-input {
   width: 30rem;
   height: 3rem;
   margin-left: 1rem;
 }
-.bottomPanel-inputContainer {
+.HandInput-inputContainer {
   margin: 1rem;
 }

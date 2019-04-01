@@ -40,6 +40,8 @@ export function calculateEntropyForString(sentence) {
 export function calculateEntropyForLetters(letters) {
   if (!letters) return;
 
+  console.log("ENTROPY", letters);
+
   if (probGreaterThanOne(letters)) return;
 
   var entropy = 0;
@@ -59,6 +61,10 @@ export function calculateHuffmanCodeForString(sentence) {
 export function calculateHuffmanCodeForLetters(letters) {
   if (!letters) return;
 
+  if (letters.length == 1) {
+    letters[0].code = "1";
+    return letters;
+  }
   console.log("Huffman encoding");
   console.log(letters);
   var fullLength = letters.length;
@@ -90,6 +96,7 @@ export function calculateHuffmanCodeForLetters(letters) {
   }
 
   console.log("ASSIGN CODE!!!!!!");
+
   letters[0].code = "1";
   letters[1].code = "0";
   console.log(letters);
@@ -171,7 +178,8 @@ function probGreaterThanOne(letters) {
   var sum = letters.reduce((prev, curr) => {
     return prev + +curr.prob;
   }, 0);
-  if (sum > 1) {
+  console.log("SUMING", sum, Math.round(sum));
+  if (Math.round(sum) > 1) {
     console.error("Probability greater than one");
     return true;
   }
@@ -179,7 +187,7 @@ function probGreaterThanOne(letters) {
   return false;
 }
 
-function isEmpty(str) {
+export function isEmpty(str) {
   return !str || str.length === 0;
 }
 

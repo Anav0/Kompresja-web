@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
-import "./BottomPanel.css";
-import * as calc from "./../../logic/calc";
+import "./HandInput.css";
+import * as calc from "../../logic/calc";
 import Paper from "@material-ui/core/Paper";
 import InputBase from "@material-ui/core/InputBase";
 
@@ -16,7 +16,7 @@ const styles = {
   }
 };
 
-class BottomPanel extends React.Component {
+class HandInput extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -31,6 +31,8 @@ class BottomPanel extends React.Component {
   }
   calculate(e) {
     if (e.key !== "Enter") return;
+    if (calc.isEmpty(this.state.inputValue)) return;
+
     let calculationRes = calc.calculateHuffmanCodeForString(
       this.state.inputValue
     );
@@ -40,12 +42,12 @@ class BottomPanel extends React.Component {
   render() {
     const { classes } = this.props;
     classes.root += " " + this.props.className;
-    classes.root += " bottomPanel-container";
+    classes.root += " HandInput-container";
     return (
       <div className={classes.root}>
-        <Paper className={"bottomPanel-inputContainer"} elevation={1}>
+        <Paper className={"HandInput-inputContainer"} elevation={1}>
           <InputBase
-            className={"bottomPanel-input"}
+            className={"HandInput-input"}
             value={this.state.inputValue}
             onChange={this.handleChange}
             type="text"
@@ -58,8 +60,8 @@ class BottomPanel extends React.Component {
     );
   }
 }
-BottomPanel.propTypes = {
+HandInput.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(BottomPanel);
+export default withStyles(styles)(HandInput);

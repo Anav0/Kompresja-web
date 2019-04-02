@@ -33,7 +33,6 @@ class App extends Component {
     element.click();
   }
   displayData(data) {
-    console.log("DATA", data);
     let i = 0;
 
     data.forEach(x => {
@@ -62,7 +61,12 @@ class App extends Component {
         />
       );
     } else if (this.state.inputMethod == 2) {
-      input = <LettersInput data={this.state.lettersInput} />;
+      input = (
+        <LettersInput
+          onCalculate={data => this.displayData(data)}
+          data={this.state.lettersInput}
+        />
+      );
     }
 
     return (

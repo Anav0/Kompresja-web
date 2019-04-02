@@ -155,7 +155,8 @@ export function generateRandomAsciiString(length = 100) {
 }
 
 export function generateStringWithGivenProb(letters, length) {
-  var output = "";
+  let output = "";
+  console.log(letters);
 
   letters[0].dyst = letters[0].prob;
 
@@ -175,7 +176,7 @@ export function generateStringWithGivenProb(letters, length) {
 }
 
 function probGreaterThanOne(letters) {
-  var sum = letters.reduce((prev, curr) => {
+  let sum = letters.reduce((prev, curr) => {
     return prev + +curr.prob;
   }, 0);
   console.log("SUMING", sum, Math.round(sum));

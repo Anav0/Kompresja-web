@@ -8,6 +8,8 @@ import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import Tooltip from "@material-ui/core/Tooltip";
 import Code from "@material-ui/icons/Code";
+import Create from "@material-ui/icons/Create";
+import TableChart from "@material-ui/icons/TableChart";
 
 const styles = {
   root: {
@@ -39,7 +41,9 @@ class MenuAppBar extends React.Component {
   handleClose = () => {
     this.setState({ anchorEl: null });
   };
-
+  changeInputMethod(newMethod) {
+    this.props.onInputMethodChanged(newMethod);
+  }
   render() {
     const { classes } = this.props;
 
@@ -58,7 +62,25 @@ class MenuAppBar extends React.Component {
               Kodowanie i kompresja
             </Typography>
 
-            <Tooltip title="Repozytorium projektu">
+            <Tooltip title="Wprowadź zdanie">
+              <IconButton
+                onClick={() => this.changeInputMethod(1)}
+                aria-haspopup="true"
+                color="inherit"
+              >
+                <Create />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Wprowadź litery">
+              <IconButton
+                onClick={() => this.changeInputMethod(2)}
+                aria-haspopup="true"
+                color="inherit"
+              >
+                <TableChart />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Repozytorium">
               <IconButton
                 aria-haspopup="true"
                 href="https://github.com/anav0/kompresja-web"

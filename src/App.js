@@ -3,6 +3,7 @@ import NavBar from "./Components/NavBar/NavBar";
 import HandInput from "./Components/HandInput/HandInput";
 import ResultsScreen from "./Components/ResultsScreen/ResultsScreen";
 import BottomResults from "./Components/BottomResults/BottomResults";
+import LettersInput from "./Components/LettersInput/LettersInput";
 
 import "./App.css";
 import * as calc from "./logic/calc";
@@ -13,9 +14,13 @@ class App extends Component {
 
     this.state = {
       results: [],
+
       redundancy: 0,
       codeLength: 0,
-      entropy: 0
+      entropy: 0,
+      //1 - hand input
+      //2 - table input
+      inputMethod: 2
     };
   }
 
@@ -43,15 +48,31 @@ class App extends Component {
       entropy: calc.calculateEntropyForLetters(data)
     }));
   }
+  changeInputMethod(newMethod) {
+    this.setState({ inputMethod: newMethod });
+  }
   render() {
-    return (
-      <main className="App">
-        <NavBar className="app-nav" />
-        <ResultsScreen data={this.state.results} className="app-main" />
+    let input;
+
+    if (this.state.inputMethod == 1) {
+      input = (
         <HandInput
           className="app-bottom"
           onCalculate={data => this.displayData(data)}
         />
+      );
+    } else if (this.state.inputMethod == 2) {
+      input = <LettersInput data={this.state.lettersInput} />;
+    }
+
+    return (
+      <main className="App">
+        <NavBar
+          onInputMethodChanged={newMethod => this.changeInputMethod(newMethod)}
+          className="app-nav"
+        />
+        <ResultsScreen data={this.state.results} className="app-main" />
+        <div className="app-inputs">{input}</div>
         <BottomResults
           entropy={this.state.entropy}
           codeLength={this.state.codeLength}

@@ -10,6 +10,10 @@ import Tooltip from "@material-ui/core/Tooltip";
 import Code from "@material-ui/icons/Code";
 import Create from "@material-ui/icons/Create";
 import TableChart from "@material-ui/icons/TableChart";
+import CloudDownload from "@material-ui/icons/CloudDownload";
+import Folder from "@material-ui/icons/Folder";
+import "./NavBar.css";
+import * as notify from "./../../logic/notify";
 
 const styles = {
   root: {
@@ -19,8 +23,8 @@ const styles = {
     flexGrow: 1
   },
   menuButton: {
-    marginLeft: -12,
-    marginRight: 20
+    marginLeft: -10,
+    marginRight: 10
   }
 };
 
@@ -29,7 +33,6 @@ class MenuAppBar extends React.Component {
     auth: true,
     anchorEl: null
   };
-
   handleChange = event => {
     this.setState({ auth: event.target.checked });
   };
@@ -43,6 +46,16 @@ class MenuAppBar extends React.Component {
   };
   changeInputMethod(newMethod) {
     this.props.onInputMethodChanged(newMethod);
+  }
+  loadTextFromFile(file, type) {
+    if (type != "text/plain")
+      return notify.showSnackbar("Niedozowlone rozszerzenie pliku", "error");
+
+    let fileReader = new FileReader();
+    fileReader.onloadend = e => {
+      this.props.onFileUploaded(fileReader.result);
+    };
+    fileReader.readAsText(file);
   }
   render() {
     const { classes } = this.props;
@@ -64,6 +77,7 @@ class MenuAppBar extends React.Component {
 
             <Tooltip title="Wprowadź zdanie">
               <IconButton
+                className={classes.menuButton}
                 onClick={() => this.changeInputMethod(1)}
                 aria-haspopup="true"
                 color="inherit"
@@ -73,6 +87,7 @@ class MenuAppBar extends React.Component {
             </Tooltip>
             <Tooltip title="Wprowadź litery">
               <IconButton
+                className={classes.menuButton}
                 onClick={() => this.changeInputMethod(2)}
                 aria-haspopup="true"
                 color="inherit"
@@ -80,8 +95,38 @@ class MenuAppBar extends React.Component {
                 <TableChart />
               </IconButton>
             </Tooltip>
+            <Tooltip title="Pobierz">
+              <IconButton
+                className={classes.menuButton}
+                aria-haspopup="true"
+                color="inherit"
+              >
+                <CloudDownload />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Wczytaj z pliku">
+              <IconButton
+                className={classes.menuButton}
+                aria-haspopup="true"
+                color="inherit"
+              >
+                <label htmlFor="navbar-uploadButton">
+                  <Folder />
+                </label>
+              </IconButton>
+            </Tooltip>
+            <input
+              id="navbar-uploadButton"
+              hidden
+              type="file"
+              accept="text/plain"
+              onChange={e =>
+                this.loadTextFromFile(e.target.files[0], e.target.files[0].type)
+              }
+            />
             <Tooltip title="Repozytorium">
               <IconButton
+                className={classes.menuButton}
                 aria-haspopup="true"
                 href="https://github.com/anav0/kompresja-web"
                 target="_blank"

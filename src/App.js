@@ -4,14 +4,19 @@ import HandInput from "./Components/HandInput/HandInput";
 import ResultsScreen from "./Components/ResultsScreen/ResultsScreen";
 import BottomResults from "./Components/BottomResults/BottomResults";
 import LettersInput from "./Components/LettersInput/LettersInput";
+import MySnackbarContent from "./Components/LettersInput/MySnackbarContent";
+import Snackbar from "@material-ui/core/Snackbar";
 
 import "./App.css";
 import * as calc from "./logic/calc";
+import * as notify from "./logic/notify";
 
 class App extends Component {
   constructor(props) {
     super(props);
-
+    this.showSnackBar = this.showSnackBar.bind(this);
+    this.closeSnackBar = this.closeSnackBar.bind(this);
+    notify.callbacks.push(this.showSnackBar);
     this.state = {
       results: [],
 
@@ -20,7 +25,11 @@ class App extends Component {
       entropy: 0,
       //1 - hand input
       //2 - table input
-      inputMethod: 2
+      inputMethod: 2,
+      handInputText: "Wprowadź zdanie do przetworzenia",
+      isPopupOpen: false,
+      popupMessage: "",
+      popupVariant: "error"
     };
   }
 
@@ -50,12 +59,32 @@ class App extends Component {
   changeInputMethod(newMethod) {
     this.setState({ inputMethod: newMethod });
   }
+  handleCalculationFromFile(text) {
+    this.setState({
+      inputMethod: 1,
+      handInputText: text
+    });
+    this.displayData(calc.calculateHuffmanCodeForString(text));
+  }
+  showSnackBar(msg, variant) {
+    this.setState({
+      isPopOpen: true,
+      popupMessage: msg,
+      popupVariant: variant
+    });
+  }
+  closeSnackBar() {
+    this.setState({
+      isPopOpen: false
+    });
+  }
   render() {
     let input;
 
     if (this.state.inputMethod == 1) {
       input = (
         <HandInput
+          placeholder={this.state.handInputText}
           className="app-bottom"
           onCalculate={data => this.displayData(data)}
         />
@@ -71,7 +100,25 @@ class App extends Component {
 
     return (
       <main className="App">
+        <Snackbar
+          autoHideDuration={3000}
+          anchorOrigin={{
+            horizontal: "center",
+            vertical: "top"
+          }}
+          open={this.state.isPopOpen}
+          onRequestClose={() => this.closeSnackBar()}
+          onClose={() => this.closeSnackBar()}
+        >
+          <MySnackbarContent
+            className="letterInput-message"
+            variant={this.state.popupVariant}
+            message={this.state.popupMessage}
+            onClose={() => this.closeSnackBar()}
+          />
+        </Snackbar>
         <NavBar
+          onFileUploaded={text => this.handleCalculationFromFile(text)}
           onInputMethodChanged={newMethod => this.changeInputMethod(newMethod)}
           className="app-nav"
         />

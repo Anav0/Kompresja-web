@@ -7,9 +7,9 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
-import { TextField, Snackbar } from "@material-ui/core";
-import MySnackbarContent from "./MySnackbarContent";
+import { TextField } from "@material-ui/core";
 import * as calc from "./../../logic/calc";
+import * as notify from "./../../logic/notify";
 import InputBase from "@material-ui/core/InputBase";
 
 export default class LetterInput extends Component {
@@ -20,26 +20,17 @@ export default class LetterInput extends Component {
       rows: [
         { id: 1, letter: "a", prob: 0.5 },
         { id: 2, letter: "b", prob: 0.5 }
-      ],
-      popupMessage: "",
-      isPopOpen: false,
-      popupVariant: "error"
+      ]
     };
   }
-  showPopup(msg, variant = "error") {
-    this.setState({
-      isPopOpen: true,
-      popupMessage: msg,
-      popupVariant: variant
-    });
-  }
+
   addNewRow(e) {
     if (e.key !== "Enter") return;
     if (!this.state.newLetter || this.state.newLetter.length > 1)
-      return this.showPopup("Można wprowadzić tylko pojedynczny znak");
+      return notify.showSnackbar("Można wprowadzić tylko pojedynczny znak");
 
     if (this.state.newProb <= 0)
-      return this.showPopup(
+      return notify.showSnackbar(
         "Prawdopodobieństwo nowego elementu nie może być mniejsze || równe 0"
       );
 
@@ -48,7 +39,9 @@ export default class LetterInput extends Component {
     }, +this.state.newProb);
 
     if (sum > 1)
-      return this.showPopup("Prawdopodobieństwo nie może być większe niż 1");
+      return notify.showSnackbar(
+        "Prawdopodobieństwo nie może być większe niż 1"
+      );
 
     var newRows = this.state.rows.slice();
     newRows.push({
@@ -66,11 +59,7 @@ export default class LetterInput extends Component {
     e.preventDefault();
     this.setState({ newLetter: e.target.value });
   }
-  closeSnackBar() {
-    this.setState({
-      isPopOpen: false
-    });
-  }
+
   calculateForLetters() {
     let sum = this.state.rows.reduce((prev, curr) => {
       return prev + +curr.prob;
@@ -80,7 +69,7 @@ export default class LetterInput extends Component {
     //console.log(sum);
 
     if (sum != 1)
-      return this.showPopup("Prawdopodobieństwo nie sumuje się do 1");
+      return notify.showSnackbar("Prawdopodobieństwo nie sumuje się do 1");
 
     let sentence = calc.generateStringWithGivenProb(this.state.rows, 1000);
     let calculationRes = calc.calculateHuffmanCodeForString(sentence);
@@ -89,7 +78,7 @@ export default class LetterInput extends Component {
   }
   handleExistingLetterChange(e, row) {
     if (e.target.value.length != 1)
-      return this.showPopup("Wpisz pojedynczy znak");
+      return notify.showSnackbar("Wpisz pojedynczy znak");
 
     let newRows = this.state.rows;
     let rowToChange = newRows.find(x => {
@@ -109,7 +98,7 @@ export default class LetterInput extends Component {
     console.log(sum);
 
     if (sum > 1)
-      this.showPopup(
+      notify.showSnackbar(
         "Prawdopodobieństwo nie może być większe niż 1",
         "warning"
       );
@@ -125,23 +114,6 @@ export default class LetterInput extends Component {
   render() {
     return (
       <Paper>
-        <Snackbar
-          autoHideDuration={3000}
-          anchorOrigin={{
-            horizontal: "center",
-            vertical: "top"
-          }}
-          open={this.state.isPopOpen}
-          onRequestClose={() => this.closeSnackBar()}
-          onClose={() => this.closeSnackBar()}
-        >
-          <MySnackbarContent
-            className="letterInput-message"
-            variant={this.state.popupVariant}
-            message={this.state.popupMessage}
-            onClose={() => this.closeSnackBar()}
-          />
-        </Snackbar>
         <Table>
           <TableHead>
             <TableRow>

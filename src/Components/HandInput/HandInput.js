@@ -51,7 +51,7 @@ class HandInput extends React.Component {
             value={this.state.inputValue}
             onChange={this.handleChange}
             type="text"
-            placeholder="Wprowadź zdanie do przetworzenia"
+            placeholder={this.props.placeholder}
             variant="filled"
             onKeyPress={this.handleCalculate}
           />

@@ -11,7 +11,6 @@ import { TextField, Snackbar } from "@material-ui/core";
 import MySnackbarContent from "./MySnackbarContent";
 import * as calc from "./../../logic/calc";
 import InputBase from "@material-ui/core/InputBase";
-import Divider from "@material-ui/core/Divider";
 
 export default class LetterInput extends Component {
   constructor(props) {
@@ -23,26 +22,25 @@ export default class LetterInput extends Component {
         { id: 2, letter: "b", prob: 0.5 }
       ],
       popupMessage: "",
-      isPopOpen: false
+      isPopOpen: false,
+      popupVariant: "error"
     };
   }
-  showPopup(msg) {
+  showPopup(msg, variant = "error") {
     this.setState({
       isPopOpen: true,
-      popupMessage: msg
+      popupMessage: msg,
+      popupVariant: variant
     });
   }
-  onAddNewRow(e) {
+  addNewRow(e) {
     if (e.key !== "Enter") return;
     if (!this.state.newLetter || this.state.newLetter.length > 1)
       return this.showPopup("Można wprowadzić tylko pojedynczny znak");
 
-    if (!(this.state.newProb <= 1 || this.state.newProb > 0))
-      return this.showPopup("Prawdopodobieństwo nie może być większe niż 1");
-
-    if (this.state.newProb == 0)
+    if (this.state.newProb <= 0)
       return this.showPopup(
-        "Prawdopodobieństwo nowego elementu nie może być równe 0"
+        "Prawdopodobieństwo nowego elementu nie może być mniejsze || równe 0"
       );
 
     var sum = this.state.rows.reduce((prev, curr) => {
@@ -62,13 +60,10 @@ export default class LetterInput extends Component {
   }
   handleProbChange(e) {
     e.preventDefault();
-
     this.setState({ newProb: e.target.value });
   }
   handleLetterChange(e) {
     e.preventDefault();
-    //TODO: limit number of character to ONE
-
     this.setState({ newLetter: e.target.value });
   }
   closeSnackBar() {
@@ -80,8 +75,9 @@ export default class LetterInput extends Component {
     let sum = this.state.rows.reduce((prev, curr) => {
       return prev + +curr.prob;
     }, 0);
+    //console.log(this.state.rows);
 
-    console.log(sum);
+    //console.log(sum);
 
     if (sum != 1)
       return this.showPopup("Prawdopodobieństwo nie sumuje się do 1");
@@ -92,7 +88,7 @@ export default class LetterInput extends Component {
     this.props.onCalculate(calculationRes);
   }
   handleExistingLetterChange(e, row) {
-    if (e.target.value.length > 1)
+    if (e.target.value.length != 1)
       return this.showPopup("Wpisz pojedynczy znak");
 
     let newRows = this.state.rows;
@@ -108,15 +104,20 @@ export default class LetterInput extends Component {
     let newRows = this.state.rows;
     let sum = newRows.reduce((prev, curr) => {
       return prev + +curr.prob;
-    }, 0);
-    if (sum + +e.target.value > 1)
-      return this.showPopup("Prawdopodobieństwo nie może być większe niż 1");
+    }, +e.target.value);
 
-    let rowToChange = newRows.find(x => {
+    console.log(sum);
+
+    if (sum > 1)
+      this.showPopup(
+        "Prawdopodobieństwo nie może być większe niż 1",
+        "warning"
+      );
+
+    newRows.find(x => {
       return x.id == row.id;
-    });
+    }).prob = +e.target.value;
 
-    rowToChange.prob = +e.target.value;
     this.setState({
       rows: newRows
     });
@@ -136,7 +137,7 @@ export default class LetterInput extends Component {
         >
           <MySnackbarContent
             className="letterInput-message"
-            variant="error"
+            variant={this.state.popupVariant}
             message={this.state.popupMessage}
             onClose={() => this.closeSnackBar()}
           />
@@ -169,13 +170,13 @@ export default class LetterInput extends Component {
               <TableCell>
                 <TextField
                   onChange={e => this.handleLetterChange(e)}
-                  onKeyPress={e => this.onAddNewRow(e)}
+                  onKeyPress={e => this.addNewRow(e)}
                 />
               </TableCell>
               <TableCell>
                 <TextField
                   onChange={e => this.handleProbChange(e)}
-                  onKeyPress={e => this.onAddNewRow(e)}
+                  onKeyPress={e => this.addNewRow(e)}
                 />
               </TableCell>
             </TableRow>

@@ -19,7 +19,6 @@ class App extends Component {
     notify.callbacks.push(this.showSnackBar);
     this.state = {
       results: [],
-
       redundancy: 0,
       codeLength: 0,
       entropy: 0,
@@ -29,19 +28,29 @@ class App extends Component {
       handInputText: "Wprowadź zdanie do przetworzenia",
       isPopupOpen: false,
       popupMessage: "",
-      popupVariant: "error"
+      popupVariant: "error",
+      generatedText: ""
     };
   }
 
-  downloadAsTxt(text) {
+  downloadAsTxt() {
+    if (calc.isEmpty(this.state.generatedText))
+      return notify.showSnackbar(
+        "Nie można pobrać, bo żaden tekst nie został wygenerowany",
+        "warning"
+      );
+
     const element = document.createElement("a");
-    const file = new Blob([text], { type: "text/plain" });
+    const file = new Blob([this.state.generatedText], { type: "text/plain" });
     element.href = URL.createObjectURL(file);
     element.download = "calc.txt";
     document.body.appendChild(element); // Required for this to work in FireFox
     element.click();
   }
-  displayData(data) {
+  displayData(data, generatedText) {
+    this.setState({
+      generatedText: generatedText
+    });
     let i = 0;
 
     data.forEach(x => {
@@ -92,7 +101,9 @@ class App extends Component {
     } else if (this.state.inputMethod == 2) {
       input = (
         <LettersInput
-          onCalculate={data => this.displayData(data)}
+          onCalculate={(data, generatedText) =>
+            this.displayData(data, generatedText)
+          }
           data={this.state.lettersInput}
         />
       );
@@ -120,6 +131,7 @@ class App extends Component {
         <NavBar
           onFileUploaded={text => this.handleCalculationFromFile(text)}
           onInputMethodChanged={newMethod => this.changeInputMethod(newMethod)}
+          onDownloadFile={() => this.downloadAsTxt("Jacek placek")}
           className="app-nav"
         />
         <ResultsScreen data={this.state.results} className="app-main" />

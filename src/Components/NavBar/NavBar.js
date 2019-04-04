@@ -57,6 +57,9 @@ class MenuAppBar extends React.Component {
     };
     fileReader.readAsText(file);
   }
+  downloadGeneratedString() {
+    this.props.onDownloadFile();
+  }
   render() {
     const { classes } = this.props;
 
@@ -100,6 +103,7 @@ class MenuAppBar extends React.Component {
                 className={classes.menuButton}
                 aria-haspopup="true"
                 color="inherit"
+                onClick={() => this.downloadGeneratedString()}
               >
                 <CloudDownload />
               </IconButton>

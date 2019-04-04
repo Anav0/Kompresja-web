@@ -154,9 +154,8 @@ export function generateRandomAsciiString(length = 100) {
   return output;
 }
 
-export function generateStringWithGivenProb(letters, length) {
+export function generateStringWithGivenProb(letters, length = 5000000) {
   let output = "";
-  console.log(letters);
 
   letters[0].dyst = letters[0].prob;
 

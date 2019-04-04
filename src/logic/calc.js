@@ -174,6 +174,134 @@ export function generateStringWithGivenProb(letters, length = 5000000) {
   return output;
 }
 
+/*
+1. dzielimy plik na słowa:
+Adaś
+Jacek
+Basia
+      itd...
+
+2. Dzielimy słowa na litery
+A d a ś
+J a c e k
+B a s i a
+
+3. Sprawdzamy ile razy dana litera wystąpiła po innej
+tj. dla każdej litery tworzymy tablicę np.
+Dla a:
+a 2
+b 3
+c 1
+d 5
+...
+Rozumiemy ją tak: po literze a a następiło 2 razy, b trzy razy c, trzy razy etc.
+
+4. Liczymy prawdopodobieństwo wystąpienia oraz dystrybuantę ale tylko dla danej litery
+UWAGA: prawdopodobieństwo wystąpienia np.
+litery "b" po "a" dzielimy przez liczbę wystąpień litery "a" a nie wszystkich razem wziętych
+zakładając że a wystąpiło 5 razy byłoby to 3/5 itd. itp.
+*/
+export function generateProbModelForGivenWords(words) {
+  let tables = [];
+  let successorFound = false;
+  let tableFound = false;
+
+  /*{
+    letter: "a",
+    occures: 1
+    successors: [
+      {letter:"a",occures:2,prob:jakieś,dyst:jakies}
+      {letter:"b",occures:3,prob:jakieś,dyst:jakies}
+    ]
+  }*/
+
+  //Dla każdego słowa
+  for (let word of words) {
+    //Dzielimy słowo na znaki
+    let letters = word.split("");
+    console.log("==========");
+    console.log(word);
+
+    //Dla każdego znaku
+    for (let i = 0; i < letters.length; i++) {
+      //Bierzemy następujące po sobie znaki
+      let letter1 = letters[i];
+      let letter2 = letters[i + 1];
+      // console.log("----------");
+      // console.log("Znak 1", letter1);
+      // console.log("Znak 2", letter2);
+      //Szukamy tabeli występień pierwszego znaku
+      let foundTable;
+      for (let table of tables) {
+        //Jeśli ją mamy to:
+        if (table.letter == letter1) {
+          tableFound = true;
+          //Zwiększamy ilość wystąpień tego znaku
+          table.occures++;
+          foundTable = table;
+          break;
+        }
+      }
+
+      //jeśli jej nie mamy to ją dodajemy
+      if (!tableFound) {
+        foundTable = {
+          letter: letter1,
+          occures: 1,
+          successors: []
+        };
+        tables.push(foundTable);
+      }
+      tableFound = false;
+
+      if (!letter2) break;
+
+      //Sprawdzamy czy drugi znak wystąpił już w tabeli wystąpień znaku pierwszego
+      for (let successor of foundTable.successors) {
+        //Jeżeli wystąpił to zwiększamy liczbę jego wystąpień o 1
+        if (successor.letter == letter2) {
+          successorFound = true;
+          successor.occures++;
+          break;
+        }
+      }
+      //Jeśli drugi znak nie wystąpił to go dodajemy
+      if (!successorFound)
+        foundTable.successors.push({
+          letter: letter2,
+          occures: 1,
+          prob: 0,
+          dyst: 0
+        });
+      successorFound = false;
+    }
+  }
+  //Jak już wiemy ile razy dany znak nastąpił do innym to możemy obliczyć:
+
+  //Prob
+  for (let letter of tables) {
+    for (let successor of letter.successors) {
+      successor.prob = successor.occures / letter.occures;
+    }
+  }
+  //Dyst
+  for (let j = 0; j < tables.length; j++) {
+    console.log(tables, j);
+
+    if (tables[j].successors.length < 1) continue;
+
+    tables[j].successors[0].dyst = tables[j].successors[0].prob;
+    for (let o = 1; o < tables[j].successors.length; o++) {
+      let successor = tables[j].successors[o];
+      successor.dyst =
+        tables[j].successors[o - 1].dyst + +tables[j].successors[o].prob;
+    }
+  }
+
+  //console.log(tables);
+  return tables;
+}
+
 function probGreaterThanOne(letters) {
   let sum = letters.reduce((prev, curr) => {
     return prev + +curr.prob;

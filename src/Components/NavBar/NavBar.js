@@ -12,8 +12,10 @@ import Create from "@material-ui/icons/Create";
 import TableChart from "@material-ui/icons/TableChart";
 import CloudDownload from "@material-ui/icons/CloudDownload";
 import Folder from "@material-ui/icons/Folder";
+import Casino from "@material-ui/icons/Casino";
 import "./NavBar.css";
 import * as notify from "./../../logic/notify";
+import * as calc from "../../logic/calc";
 
 const styles = {
   root: {
@@ -60,6 +62,7 @@ class MenuAppBar extends React.Component {
   downloadGeneratedString() {
     this.props.onDownloadFile();
   }
+
   render() {
     const { classes } = this.props;
 
@@ -77,7 +80,16 @@ class MenuAppBar extends React.Component {
             <Typography variant="h6" color="inherit" className={classes.grow}>
               Kodowanie i kompresja
             </Typography>
-
+            <Tooltip title="Modele probabilistyczne">
+              <IconButton
+                className={classes.menuButton}
+                onClick={() => this.changeInputMethod(3)}
+                aria-haspopup="true"
+                color="inherit"
+              >
+                <Casino />
+              </IconButton>
+            </Tooltip>
             <Tooltip title="Wprowadź zdanie">
               <IconButton
                 className={classes.menuButton}

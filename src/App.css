@@ -3,16 +3,15 @@
   height: 100%;
   display: grid;
   grid-template-columns: auto;
-  grid-template-rows: auto 1fr 4fr 2fr;
+  grid-template-rows: auto auto auto auto auto;
 }
 
 .app-nav {
   grid-row: 1;
 }
-.app-bottom {
+.app-snackBar {
   grid-row: 2;
 }
-
 .app-main {
   grid-row: 3;
 }
@@ -21,7 +20,7 @@
 }
 
 /*TODO: change this to something like & **/
-.app-bottom,
+
 .app-nav,
 .app-main,
 .app-bottomResults {
@@ -33,5 +32,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  overflow: auto;
   margin: 2rem;
+  grid-row: 2;
 }

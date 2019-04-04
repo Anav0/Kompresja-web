@@ -60,21 +60,28 @@ export default class LetterInput extends Component {
     this.setState({ newLetter: e.target.value });
   }
 
+  async calculateForLettersAsync() {
+    notify.showProgressbar();
+    await this.calculateForLetters().then(results => {
+      notify.hideProgressbar();
+    });
+  }
+
   calculateForLetters() {
-    let sum = this.state.rows.reduce((prev, curr) => {
-      return prev + +curr.prob;
-    }, 0);
-    //console.log(this.state.rows);
+    return new Promise(resolve => {
+      let sum = this.state.rows.reduce((prev, curr) => {
+        return prev + +curr.prob;
+      }, 0);
 
-    //console.log(sum);
+      if (sum != 1)
+        return notify.showSnackbar("Prawdopodobieństwo nie sumuje się do 1");
 
-    if (sum != 1)
-      return notify.showSnackbar("Prawdopodobieństwo nie sumuje się do 1");
-
-    let sentence = calc.generateStringWithGivenProb(this.state.rows);
-    let calculationRes = calc.calculateHuffmanCodeForString(sentence);
-    //Invoke callback to parent
-    this.props.onCalculate(calculationRes, sentence);
+      let sentence = calc.generateStringWithGivenProb(this.state.rows);
+      let calculationRes = calc.calculateHuffmanCodeForString(sentence);
+      //Invoke callback to parent
+      this.props.onCalculate(calculationRes, sentence);
+      resolve();
+    });
   }
   handleExistingLetterChange(e, row) {
     if (e.target.value.length != 1)
@@ -154,7 +161,7 @@ export default class LetterInput extends Component {
             </TableRow>
           </TableBody>
         </Table>
-        <Button onClick={() => this.calculateForLetters()} color="primary">
+        <Button onClick={() => this.calculateForLettersAsync()} color="primary">
           Oblicz
         </Button>
       </Paper>

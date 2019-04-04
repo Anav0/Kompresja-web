@@ -6,6 +6,8 @@ import BottomResults from "./Components/BottomResults/BottomResults";
 import LettersInput from "./Components/LettersInput/LettersInput";
 import MySnackbarContent from "./Components/LettersInput/MySnackbarContent";
 import Snackbar from "@material-ui/core/Snackbar";
+import LinearProgress from "@material-ui/core/LinearProgress";
+import ProbabilisticScreen from "./Components/ProbabilisticScreen/ProbabilisticScreen";
 
 import "./App.css";
 import * as calc from "./logic/calc";
@@ -16,7 +18,13 @@ class App extends Component {
     super(props);
     this.showSnackBar = this.showSnackBar.bind(this);
     this.closeSnackBar = this.closeSnackBar.bind(this);
-    notify.callbacks.push(this.showSnackBar);
+    this.showProgressbar = this.showProgressbar.bind(this);
+    this.hideProgressbar = this.hideProgressbar.bind(this);
+
+    notify.snackBarCallbacks.push(this.showSnackBar);
+    notify.showProgressbarCallbacks.push(this.showProgressbar);
+    notify.hideProgressbarCallbacks.push(this.hideProgressbar);
+
     this.state = {
       results: [],
       redundancy: 0,
@@ -24,12 +32,13 @@ class App extends Component {
       entropy: 0,
       //1 - hand input
       //2 - table input
-      inputMethod: 2,
+      inputMethod: 3,
       handInputText: "Wprowadź zdanie do przetworzenia",
       isPopupOpen: false,
       popupMessage: "",
       popupVariant: "error",
-      generatedText: ""
+      generatedText: "",
+      isLoading: false
     };
   }
 
@@ -87,6 +96,16 @@ class App extends Component {
       isPopOpen: false
     });
   }
+  showProgressbar() {
+    this.setState({
+      isLoading: true
+    });
+  }
+  hideProgressbar() {
+    this.setState({
+      isLoading: false
+    });
+  }
   render() {
     let input;
 
@@ -107,11 +126,18 @@ class App extends Component {
           data={this.state.lettersInput}
         />
       );
+    } else if (this.state.inputMethod == 3) {
+      input = (
+        <ProbabilisticScreen
+          numberOfWords={4}
+          data={[{ letter: "d", occures: 2, successors: [] }]}
+        />
+      );
     }
-
     return (
       <main className="App">
         <Snackbar
+          className="app-snackBar"
           autoHideDuration={3000}
           anchorOrigin={{
             horizontal: "center",
@@ -128,14 +154,16 @@ class App extends Component {
             onClose={() => this.closeSnackBar()}
           />
         </Snackbar>
+
         <NavBar
           onFileUploaded={text => this.handleCalculationFromFile(text)}
           onInputMethodChanged={newMethod => this.changeInputMethod(newMethod)}
           onDownloadFile={() => this.downloadAsTxt("Jacek placek")}
           className="app-nav"
         />
-        <ResultsScreen data={this.state.results} className="app-main" />
+        <LinearProgress hidden={!this.state.isLoading} color="secondary" />
         <div className="app-inputs">{input}</div>
+        <ResultsScreen data={this.state.results} className="app-main" />
         <BottomResults
           entropy={this.state.entropy}
           codeLength={this.state.codeLength}

@@ -1,12 +1,19 @@
 import React, { Component } from "react";
 import "./ProbabilisticScreen.css";
 import Word from "./Word";
-import { Fab, Icon, Tooltip, withStyles } from "@material-ui/core";
+import {
+  Fab,
+  Icon,
+  Tooltip,
+  withStyles,
+  Modal,
+  Paper
+} from "@material-ui/core";
 import Casino from "@material-ui/icons/Casino";
 import InsertDriveFile from "@material-ui/icons/InsertDriveFile";
 import * as notify from "./../../logic/notify";
 import * as calc from "./../../logic/calc";
-
+import * as downloader from "./../../logic/downloader";
 const styles = theme => ({
   fab: {
     margin: theme.spacing.unit
@@ -39,14 +46,21 @@ class ProbabilisticScreen extends Component {
     fileReader.readAsText(file);
   }
   generateWordsBasedOnModel() {
-    if (!this.state.loadedModel || this.state.loadedModel.length < 1)
+    console.log(this.state);
+
+    if (this.state.loadedModel.length < 1) {
       return notify.showSnackbar(
         "Zanim wygenerujesz słowa, wczytaj jakiś model.",
         "error"
       );
-    console.log(this.state.loadedModel);
+    }
 
-    calc.generateWordsForGivenModel(this.state.loadedModel);
+    const words = calc.generateWordsForGivenModel(this.state.loadedModel);
+    console.log(words);
+
+    console.log(words);
+
+    downloader.downloadTextArray(words, "words");
   }
   render() {
     const { classes } = this.props;

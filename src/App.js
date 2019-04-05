@@ -17,6 +17,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import "./App.css";
 import * as calc from "./logic/calc";
 import * as notify from "./logic/notify";
+import * as downloader from "./logic/downloader";
 
 class App extends Component {
   constructor(props) {
@@ -47,19 +48,14 @@ class App extends Component {
     };
   }
 
-  downloadAsTxt() {
+  downloadGeneratedString() {
     if (calc.isEmpty(this.state.generatedText))
       return notify.showSnackbar(
         "Nie można pobrać, bo żaden tekst nie został wygenerowany",
         "warning"
       );
 
-    const element = document.createElement("a");
-    const file = new Blob([this.state.generatedText], { type: "text/plain" });
-    element.href = URL.createObjectURL(file);
-    element.download = "calc.txt";
-    document.body.appendChild(element); // Required for this to work in FireFox
-    element.click();
+    downloader.downloadText(this.state.generatedText, "calc");
   }
   displayData(data, generatedText) {
     this.setState({
@@ -163,7 +159,7 @@ class App extends Component {
         <NavBar
           onFileUploaded={text => this.handleCalculationFromFile(text)}
           onInputMethodChanged={newMethod => this.changeInputMethod(newMethod)}
-          onDownloadFile={() => this.downloadAsTxt("Jacek placek")}
+          onDownloadFile={() => this.downloadGeneratedString("Jacek placek")}
           className="app-nav"
         />
         <LinearProgress hidden={!this.state.isLoading} color="secondary" />

@@ -279,9 +279,16 @@ export function generateProbModelForGivenWords(words) {
   //Jak już wiemy ile razy dany znak nastąpił do innym to możemy obliczyć:
 
   //Prob
+  //Ile znak ma następników?
+
   for (let letter of tables) {
+    const numberOfSuccesors = letter.successors.reduce(
+      (total, succesor) => total + +succesor.occures,
+      0
+    );
+
     for (let successor of letter.successors) {
-      successor.prob = successor.occures / letter.occures;
+      successor.prob = successor.occures / numberOfSuccesors;
     }
   }
   //Dyst

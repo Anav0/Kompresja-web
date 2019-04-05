@@ -8,6 +8,11 @@ import MySnackbarContent from "./Components/LettersInput/MySnackbarContent";
 import Snackbar from "@material-ui/core/Snackbar";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import ProbabilisticScreen from "./Components/ProbabilisticScreen/ProbabilisticScreen";
+import ExpansionPanel from "@material-ui/core/ExpansionPanel";
+import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
+import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
+import Typography from "@material-ui/core/Typography";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 import "./App.css";
 import * as calc from "./logic/calc";
@@ -162,14 +167,30 @@ class App extends Component {
           className="app-nav"
         />
         <LinearProgress hidden={!this.state.isLoading} color="secondary" />
-        <div className="app-inputs">{input}</div>
-        <ResultsScreen data={this.state.results} className="app-main" />
-        <BottomResults
-          entropy={this.state.entropy}
-          codeLength={this.state.codeLength}
-          redundancy={this.state.redundancy}
-          className="app-bottomResults"
-        />
+        <div className="app-input">{input}</div>
+        <ExpansionPanel>
+          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+            <h4 className="app-expandPanel-header">Znaki</h4>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails>
+            <ResultsScreen data={this.state.results} />
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
+        <ExpansionPanel>
+          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+            <h4 className="app-expandPanel-header">
+              Entropia, średnia długość kodu i redundancja
+            </h4>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails>
+            <BottomResults
+              entropy={this.state.entropy}
+              codeLength={this.state.codeLength}
+              redundancy={this.state.redundancy}
+              className="app-bottomResults"
+            />
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
       </main>
     );
   }

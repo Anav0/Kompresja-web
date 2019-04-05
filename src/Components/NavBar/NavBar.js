@@ -18,9 +18,7 @@ import * as notify from "./../../logic/notify";
 import * as calc from "../../logic/calc";
 
 const styles = {
-  root: {
-    flexGrow: 1
-  },
+  root: {},
   grow: {
     flexGrow: 1
   },

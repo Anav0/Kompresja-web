@@ -19,7 +19,7 @@ class ProbabilisticScreen extends Component {
 
     this.state = {
       numberOfWords: 0,
-      data: []
+      loadedModel: []
     };
   }
 
@@ -33,10 +33,20 @@ class ProbabilisticScreen extends Component {
       const results = calc.generateProbModelForGivenWords(words);
       this.setState({
         numberOfWords: words.length - 1,
-        data: results
+        loadedModel: results
       });
     };
     fileReader.readAsText(file);
+  }
+  generateWordsBasedOnModel() {
+    if (!this.state.loadedModel || this.state.loadedModel.length < 1)
+      return notify.showSnackbar(
+        "Zanim wygenerujesz słowa, wczytaj jakiś model.",
+        "error"
+      );
+    console.log(this.state.loadedModel);
+
+    calc.generateWordsForGivenModel(this.state.loadedModel);
   }
   render() {
     const { classes } = this.props;
@@ -46,7 +56,7 @@ class ProbabilisticScreen extends Component {
           Ilość wczytanych słów: {this.state.numberOfWords}
         </h2>
         <ul className="probScreen-words-container">
-          {this.state.data.map(row => {
+          {this.state.loadedModel.map(row => {
             return (
               <Word
                 letter={row.letter}
@@ -57,13 +67,17 @@ class ProbabilisticScreen extends Component {
           })}
         </ul>
         <div className="probScreen-fab-container">
-          <Tooltip title="Generuj słowa">
-            <Fab m={1} color="primary" aria-label="Add" className={classes.fab}>
+          <Tooltip title="Generuj słowa w oparciu o wczytany model">
+            <Fab
+              onClick={() => this.generateWordsBasedOnModel()}
+              color="primary"
+              className={classes.fab}
+            >
               <Casino />
             </Fab>
           </Tooltip>
           <Tooltip title="Wczytaj model">
-            <Fab color="secondary" aria-label="Edit" className={classes.fab}>
+            <Fab color="secondary" className={classes.fab}>
               <label htmlFor="probScreen-loadButton">
                 <InsertDriveFile />
               </label>

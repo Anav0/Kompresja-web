@@ -1,3 +1,5 @@
+import * as notify from "./notify";
+
 export function breakDownToLetters(sentence, trimSentence = true) {
   if (isEmpty(sentence)) return;
 
@@ -307,6 +309,38 @@ export function generateProbModelForGivenWords(words) {
 
   //console.log(tables);
   return tables;
+}
+/*
+  1. Zaczynamy od liter A
+  2. Losujemy kolejny znak w oparciu o tablicę następników
+  3. Jeśli słowo nie ma jeszcze danej długości to losujemy kolejny znak w oparciu
+     o tablicę następników tego znaku
+
+*/
+export function generateWordsForGivenModel(model, wordLength = 4) {
+  let output = "";
+  let generatedWords = [];
+
+  for (let letter of model) {
+    if (letter.successors.length == 0) continue;
+
+    let pickedLetter = letter;
+    do {
+      pickedLetter = generateStringWithGivenProb(pickedLetter.successors, 1);
+
+      output += pickedLetter;
+
+      pickedLetter = model.find(x => x.letter == pickedLetter);
+
+      if (!pickedLetter)
+        return notify.showSnackbar("Nie udało się wygenerować słów", "error");
+    } while (output.length < wordLength);
+
+    console.log(output);
+    generatedWords.push(output);
+    output = "";
+  }
+  return generatedWords;
 }
 
 function probGreaterThanOne(letters) {

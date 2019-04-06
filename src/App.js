@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 import NavBar from "./Components/NavBar/NavBar";
 import HandInput from "./Components/HandInput/HandInput";
 import ResultsScreen from "./Components/ResultsScreen/ResultsScreen";
@@ -36,31 +37,29 @@ class App extends Component {
       redundancy: 0,
       codeLength: 0,
       entropy: 0,
-      //1 - hand input
-      //2 - table input
-      inputMethod: 3,
-      handInputText: "Wprowadź zdanie do przetworzenia",
       isPopupOpen: false,
       popupMessage: "",
       popupVariant: "error",
-      generatedText: "",
+      generatedText: "Wprowadź zdanie do przetworzenia",
       isLoading: false
     };
   }
 
   downloadGeneratedString() {
-    if (calc.isEmpty(this.state.generatedText))
+    if (calc.isEmpty(this.state.generatedText) || this.state.results.length < 1)
       return notify.showSnackbar(
         "Nie można pobrać, bo żaden tekst nie został wygenerowany",
         "warning"
       );
 
-    downloader.downloadText(this.state.generatedText, "calc");
+    downloader.download(this.state.generatedText, "calc.txt", "text/plain");
+    let content = this.state.results.reduce((code, letter) => {
+      return code + letter.code;
+    }, "");
+
+    downloader.download(content, "encoding.huff", "octet/stream");
   }
   displayData(data, generatedText) {
-    this.setState({
-      generatedText: generatedText
-    });
     let i = 0;
 
     data.forEach(x => {
@@ -72,18 +71,14 @@ class App extends Component {
       results: data,
       redundancy: calc.calculateRedundancy(data),
       codeLength: calc.calculateAverageCodeLength(data),
-      entropy: calc.calculateEntropyForLetters(data)
+      entropy: calc.calculateEntropyForLetters(data),
+      generatedText: generatedText
     }));
   }
-  changeInputMethod(newMethod) {
-    this.setState({ inputMethod: newMethod });
-  }
+
   handleCalculationFromFile(text) {
-    this.setState({
-      inputMethod: 1,
-      handInputText: text
-    });
-    this.displayData(calc.calculateHuffmanCodeForString(text));
+    let data = calc.calculateHuffmanCodeForString(text);
+    this.displayData(data, text);
   }
   showSnackBar(msg, variant) {
     this.setState({
@@ -108,86 +103,84 @@ class App extends Component {
     });
   }
   render() {
-    let input;
-
-    if (this.state.inputMethod == 1) {
-      input = (
-        <HandInput
-          placeholder={this.state.handInputText}
-          className="app-bottom"
-          onCalculate={data => this.displayData(data)}
-        />
-      );
-    } else if (this.state.inputMethod == 2) {
-      input = (
-        <LettersInput
-          onCalculate={(data, generatedText) =>
-            this.displayData(data, generatedText)
-          }
-          data={this.state.lettersInput}
-        />
-      );
-    } else if (this.state.inputMethod == 3) {
-      input = (
-        <ProbabilisticScreen
-          numberOfWords={4}
-          data={[{ letter: "d", occures: 2, successors: [] }]}
-        />
-      );
-    }
     return (
-      <main className="App">
-        <Snackbar
-          className="app-snackBar"
-          autoHideDuration={3000}
-          anchorOrigin={{
-            horizontal: "center",
-            vertical: "top"
-          }}
-          open={this.state.isPopOpen}
-          onRequestClose={() => this.closeSnackBar()}
-          onClose={() => this.closeSnackBar()}
-        >
-          <MySnackbarContent
-            className="letterInput-message"
-            variant={this.state.popupVariant}
-            message={this.state.popupMessage}
+      <Router>
+        <main className="App">
+          <Snackbar
+            className="app-snackBar"
+            autoHideDuration={3000}
+            anchorOrigin={{
+              horizontal: "center",
+              vertical: "top"
+            }}
+            open={this.state.isPopOpen}
+            onRequestClose={() => this.closeSnackBar()}
             onClose={() => this.closeSnackBar()}
-          />
-        </Snackbar>
-
-        <NavBar
-          onFileUploaded={text => this.handleCalculationFromFile(text)}
-          onInputMethodChanged={newMethod => this.changeInputMethod(newMethod)}
-          onDownloadFile={() => this.downloadGeneratedString("Jacek placek")}
-          className="app-nav"
-        />
-        <LinearProgress hidden={!this.state.isLoading} color="secondary" />
-        <div className="app-input">{input}</div>
-        <ExpansionPanel>
-          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-            <h4 className="app-expandPanel-header">Znaki</h4>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <ResultsScreen data={this.state.results} />
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-        <ExpansionPanel>
-          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-            <h4 className="app-expandPanel-header">
-              Entropia, średnia długość kodu i redundancja
-            </h4>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <BottomResults
-              entropy={this.state.entropy}
-              codeLength={this.state.codeLength}
-              redundancy={this.state.redundancy}
-              className="app-bottomResults"
+          >
+            <MySnackbarContent
+              className="letterInput-message"
+              variant={this.state.popupVariant}
+              message={this.state.popupMessage}
+              onClose={() => this.closeSnackBar()}
             />
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-      </main>
+          </Snackbar>
+
+          <NavBar
+            onFileUploaded={text => this.handleCalculationFromFile(text)}
+            onDownloadFile={() => this.downloadGeneratedString("Jacek placek")}
+            className="app-nav"
+          />
+          <LinearProgress hidden={!this.state.isLoading} color="secondary" />
+          {/* <div className="app-input">{input}</div> */}
+          <section className="app-input">
+            <Route path="/" exact component={ProbabilisticScreen} />
+            <Route
+              path="/hand/"
+              render={props => (
+                <HandInput
+                  placeholder={this.state.generatedText}
+                  onCalculate={(data, text) => this.displayData(data, text)}
+                />
+              )}
+            />
+            <Route
+              path="/letters/"
+              render={props => (
+                <LettersInput
+                  onCalculate={(data, generatedText) =>
+                    this.displayData(data, generatedText)
+                  }
+                  data={this.state.lettersInput}
+                />
+              )}
+            />
+            <Route path="/generate/" component={ProbabilisticScreen} />
+          </section>
+          <ExpansionPanel>
+            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+              <h4 className="app-expandPanel-header">Znaki</h4>
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails>
+              <ResultsScreen data={this.state.results} />
+            </ExpansionPanelDetails>
+          </ExpansionPanel>
+          <ExpansionPanel>
+            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+              <h4 className="app-expandPanel-header">
+                Entropia, średnia długość kodu i redundancja
+              </h4>
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails>
+              <BottomResults
+                entropy={this.state.entropy}
+                codeLength={this.state.codeLength}
+                redundancy={this.state.redundancy}
+                className="app-bottomResults"
+              />
+            </ExpansionPanelDetails>
+          </ExpansionPanel>
+        </main>
+      </Router>
     );
   }
 }

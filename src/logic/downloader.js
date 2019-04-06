@@ -11,13 +11,14 @@ export function downloadTextArray(words, fileName = "text") {
   document.body.appendChild(element); // Required for this to work in FireFox
   element.click();
 }
-export function downloadText(text, fileName = "text") {
+export function download(text, fileName, format = "text/plain") {
   if (calc.isEmpty(text)) return;
+  alert(text);
 
   const element = document.createElement("a");
-  const file = new Blob([text], { type: "text/plain" });
+  const file = new Blob([text], { type: format });
   element.href = URL.createObjectURL(file);
-  element.download = fileName += ".txt";
+  element.download = fileName;
   document.body.appendChild(element); // Required for this to work in FireFox
   element.click();
 }

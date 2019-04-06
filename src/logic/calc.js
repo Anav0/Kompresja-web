@@ -208,15 +208,6 @@ export function generateProbModelForGivenWords(words) {
   let successorFound = false;
   let tableFound = false;
 
-  /*{
-    letter: "a",
-    occures: 1
-    successors: [
-      {letter:"a",occures:2,prob:jakieś,dyst:jakies}
-      {letter:"b",occures:3,prob:jakieś,dyst:jakies}
-    ]
-  }*/
-
   //Dla każdego słowa
   for (let word of words) {
     //Dzielimy słowo na znaki
@@ -279,9 +270,19 @@ export function generateProbModelForGivenWords(words) {
     }
   }
   //Jak już wiemy ile razy dany znak nastąpił do innym to możemy obliczyć:
-
   //Prob
-  //Ile znak ma następników?
+  const numberOfLetters = tables.reduce(
+    (total, letter) => total + +letter.occures,
+    0
+  );
+  for (let x of tables) {
+    x.prob = x.occures / numberOfLetters;
+  }
+
+  tables[0].dyst = tables[0].prob;
+  for (let i = 1; i < tables.length; i++) {
+    tables[i].dyst = tables[i - 1].dyst + +tables[i].prob;
+  }
 
   for (let letter of tables) {
     const numberOfSuccesors = letter.successors.reduce(
@@ -315,34 +316,45 @@ export function generateProbModelForGivenWords(words) {
   2. Losujemy kolejny znak w oparciu o tablicę następników
   3. Jeśli słowo nie ma jeszcze danej długości to losujemy kolejny znak w oparciu
      o tablicę następników tego znaku
-
 */
-export function generateWordsForGivenModel(model, wordLength = 4) {
+export function generateWordsForGivenModel(
+  model,
+  wordLength = 4,
+  numberOfWords = 1000
+) {
   let output = "";
   let generatedWords = [];
+  let firstLetter;
 
-  for (let letter of model) {
-    if (letter.successors.length == 0) continue;
+  for (let k = 0; k < numberOfWords; k++) {
+    //Losujemy 1 znak w oparciu o model probabilistyczny wszystkich znaków
+    let luck = Math.random();
+    let o = 0;
+    while (luck > model[o].dyst) o++;
+    firstLetter = model[o];
+    output += firstLetter.letter;
 
-    let pickedLetter = letter;
-    do {
-      pickedLetter = generateStringWithGivenProb(pickedLetter.successors, 1);
+    //Kolejny znak losujemy w oparciu o model probabilistyczny
+    //następników
+    while (output.length < wordLength) {
+      let luck = Math.random();
+      let j = 0;
 
-      output += pickedLetter;
+      while (luck > firstLetter.successors[j].dyst) j++;
+      output += firstLetter.successors[j].letter;
 
-      pickedLetter = model.find(x => x.letter == pickedLetter);
-
-      if (!pickedLetter)
-        return notify.showSnackbar("Nie udało się wygenerować słów", "error");
-    } while (output.length < wordLength);
+      firstLetter = model.find(
+        x => x.letter == firstLetter.successors[j].letter
+      );
+    }
 
     console.log(output);
     generatedWords.push(output);
     output = "";
   }
+
   return generatedWords;
 }
-
 function probGreaterThanOne(letters) {
   let sum = letters.reduce((prev, curr) => {
     return prev + +curr.prob;

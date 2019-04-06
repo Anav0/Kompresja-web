@@ -37,7 +37,7 @@ class HandInput extends React.Component {
       this.state.inputValue
     );
     //Invoke callback to parent
-    this.props.onCalculate(calculationRes);
+    this.props.onCalculate(calculationRes, this.state.inputValue);
   }
   render() {
     const { classes } = this.props;

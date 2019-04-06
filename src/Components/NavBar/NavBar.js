@@ -16,6 +16,7 @@ import Casino from "@material-ui/icons/Casino";
 import "./NavBar.css";
 import * as notify from "./../../logic/notify";
 import * as calc from "../../logic/calc";
+import { Link } from "react-router-dom";
 
 const styles = {
   root: {},
@@ -81,7 +82,8 @@ class MenuAppBar extends React.Component {
             <Tooltip title="Modele probabilistyczne">
               <IconButton
                 className={classes.menuButton}
-                onClick={() => this.changeInputMethod(3)}
+                component={Link}
+                to="/generate"
                 aria-haspopup="true"
                 color="inherit"
               >
@@ -90,8 +92,9 @@ class MenuAppBar extends React.Component {
             </Tooltip>
             <Tooltip title="Wprowadź zdanie">
               <IconButton
+                component={Link}
                 className={classes.menuButton}
-                onClick={() => this.changeInputMethod(1)}
+                to="/hand"
                 aria-haspopup="true"
                 color="inherit"
               >
@@ -101,7 +104,8 @@ class MenuAppBar extends React.Component {
             <Tooltip title="Wprowadź litery">
               <IconButton
                 className={classes.menuButton}
-                onClick={() => this.changeInputMethod(2)}
+                component={Link}
+                to="/letters"
                 aria-haspopup="true"
                 color="inherit"
               >

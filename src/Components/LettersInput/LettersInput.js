@@ -11,6 +11,7 @@ import { TextField } from "@material-ui/core";
 import * as calc from "./../../logic/calc";
 import * as notify from "./../../logic/notify";
 import InputBase from "@material-ui/core/InputBase";
+import { downloadTextArray } from "../../logic/downloader";
 
 export default class LetterInput extends Component {
   constructor(props) {
@@ -34,11 +35,7 @@ export default class LetterInput extends Component {
         "Prawdopodobieństwo nowego elementu nie może być mniejsze || równe 0"
       );
 
-    var sum = this.state.rows.reduce((prev, curr) => {
-      return +prev + +curr.prob;
-    }, +this.state.newProb);
-
-    if (sum > 1)
+    if (this.getSumOfRowProbability() > 1)
       return notify.showSnackbar(
         "Prawdopodobieństwo nie może być większe niż 1"
       );
@@ -60,20 +57,19 @@ export default class LetterInput extends Component {
     this.setState({ newLetter: e.target.value });
   }
 
-  async calculateForLettersAsync() {
-    notify.showProgressbar();
-    await this.calculateForLetters().then(results => {
-      notify.hideProgressbar();
+  async downloadTextAndHuffmanCodeAsync() {
+    await this.generateTextAndHuffmanCode().then(results => {
     });
   }
-
-  calculateForLetters() {
+  getSumOfRowProbability = () => {
+    return this.state.rows.reduce((prev, curr) => {
+      return prev + +curr.prob;
+    }, 0);
+  }
+  generateTextAndHuffmanCode() {
     return new Promise(resolve => {
-      let sum = this.state.rows.reduce((prev, curr) => {
-        return prev + +curr.prob;
-      }, 0);
 
-      if (sum != 1)
+      if (this.getSumOfRowProbability() != 1)
         return notify.showSnackbar("Prawdopodobieństwo nie sumuje się do 1");
 
       let sentence = calc.generateStringWithGivenProb(this.state.rows);
@@ -98,13 +94,8 @@ export default class LetterInput extends Component {
   }
   handleExistingProbChange(e, row) {
     let newRows = this.state.rows;
-    let sum = newRows.reduce((prev, curr) => {
-      return prev + +curr.prob;
-    }, +e.target.value);
 
-    console.log(sum);
-
-    if (sum > 1)
+    if (this.getSumOfRowProbability() > 1)
       notify.showSnackbar(
         "Prawdopodobieństwo nie może być większe niż 1",
         "warning"
@@ -117,6 +108,12 @@ export default class LetterInput extends Component {
     this.setState({
       rows: newRows
     });
+  }
+  downloadRandomWords = () => {
+    let words = calc.generateWordsForLetters(this.state.rows);
+    console.log(words);
+    downloadTextArray(words,"words");
+
   }
   render() {
     return (
@@ -161,8 +158,11 @@ export default class LetterInput extends Component {
             </TableRow>
           </TableBody>
         </Table>
-        <Button onClick={() => this.calculateForLettersAsync()} color="primary">
+        <Button onClick={() => this.downloadTextAndHuffmanCodeAsync()} color="primary">
           Oblicz
+        </Button>
+        <Button onClick={() => this.downloadRandomWords()} color="secondary">
+          Utwórz słowa
         </Button>
       </Paper>
     );

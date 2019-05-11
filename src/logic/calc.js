@@ -1,6 +1,5 @@
-import * as notify from "./notify";
 
-export function breakDownToLetters(sentence, trimSentence = true) {
+export function getLettersProbAndFreqFromText(sentence, trimSentence = true) {
   if (isEmpty(sentence)) return;
 
   if (trimSentence) sentence = sentence.trim();
@@ -33,7 +32,7 @@ export function breakDownToLetters(sentence, trimSentence = true) {
 export function calculateEntropyForString(sentence) {
   if (isEmpty(sentence)) return;
 
-  const letters = breakDownToLetters(sentence);
+  const letters = getLettersProbAndFreqFromText(sentence);
   if (!letters) return;
 
   return calculateEntropyForLetters(letters);
@@ -41,8 +40,6 @@ export function calculateEntropyForString(sentence) {
 
 export function calculateEntropyForLetters(letters) {
   if (!letters) return;
-
-  console.log("ENTROPY", letters);
 
   if (probGreaterThanOne(letters)) return;
 
@@ -55,20 +52,42 @@ export function calculateEntropyForLetters(letters) {
 }
 
 export function calculateHuffmanCodeForString(sentence) {
-  var letters = breakDownToLetters(sentence);
+  var letters = getLettersProbAndFreqFromText(sentence);
 
   return calculateHuffmanCodeForLetters(letters);
 }
-
 export function calculateHuffmanCodeForLetters(letters) {
-  if (!letters) return;
+  let fullLength = letters.length;
+  letters = calculateHuffmanTreeFromLetters(letters);
 
+  //Przypisz słowa kodowe
+  while (letters.length !== fullLength) {
+    letters.sort((a, b) => {
+      return b.letter.length - a.letter.length;
+    });
+
+    //Get first letter
+    var firstLetter = letters[0];
+
+    //Remove it from array
+    letters = letters.slice(1, letters.length);
+    //Assign code value
+    firstLetter.combines[0].code += firstLetter.code + "1";
+    firstLetter.combines[1].code += firstLetter.code + "0";
+
+    //Add letters to array
+    letters.push(firstLetter.combines[0]);
+    letters.push(firstLetter.combines[1]);
+  }
+
+  return letters;
+}
+
+export function calculateHuffmanTreeFromLetters(letters) {
   if (letters.length == 1) {
     letters[0].code = "1";
     return letters;
   }
-  console.log("Huffman encoding");
-  console.log(letters);
   var fullLength = letters.length;
   for (let i = 0; i < fullLength; i++) {
     //Sort by probability descending
@@ -91,44 +110,56 @@ export function calculateHuffmanCodeForLetters(letters) {
       letter: last1.letter + last2.letter,
       prob: +last1.prob + +last2.prob,
       code: "",
+      occures: last1.occures + +last2.occures,
       combines: [last1, last2]
     });
-
-    console.log(letters);
   }
-
-  console.log("ASSIGN CODE!!!!!!");
 
   letters[0].code = "1";
   letters[1].code = "0";
-  console.log(letters);
-
-  //Przypożądkuj słowa kodowe
-  while (letters.length !== fullLength) {
-    //Sort by probability descending
-    letters.sort((a, b) => {
-      return b.letter.length - a.letter.length;
-    });
-
-    //Get first letter
-    var firstLetter = letters[0];
-
-    //Remove it from array
-    letters = letters.slice(1, letters.length);
-    //Assign code value
-    firstLetter.combines[0].code += firstLetter.code + "0";
-    firstLetter.combines[1].code += firstLetter.code + "1";
-
-    //Add letters to array
-    letters.push(firstLetter.combines[0]);
-    letters.push(firstLetter.combines[1]);
-
-    console.log(letters);
-  }
-
   return letters;
 }
 
+export function encodeTextUsingHuffmanTree(text, tree) {
+  let letters = text.split("");
+  let code = "";
+  if (tree.length == 2)
+    tree = {
+      letter: tree[0].letter + tree[1].letter,
+      occures: tree[0].occures + tree[1].occures,
+      prob: tree[0].prob + tree[1].prob,
+      combines: [tree[0], tree[1]]
+    };
+
+  for (let letter of letters) {
+    code += treverseTree("", letter, tree);
+  }
+  return code;
+}
+
+function treverseTree(code, letter, tree) {
+  //co jak nie ma lewgo liścia??? ty kurwo!
+  console.log(code, letter, tree);
+
+  if (!tree.combines) tree.combines = [];
+  //Go to left leaf
+  if (tree.combines[0]) {
+    code += "0";
+    treverseTree(code, letter, tree.combines[0]);
+  }
+  //Go to right leaf
+  if (tree.combines[1]) {
+    code += "1";
+    treverseTree(code, letter, tree.combines[1]);
+  }
+
+  //If node don't have childeren check if letter matches
+  if (tree.letter == letter) {
+    return code;
+  }
+
+  return code;
+}
 export function calculateAverageCodeLength(letters) {
   var output = 0;
   if (!letters) return;
@@ -322,6 +353,7 @@ export function generateWordsForGivenModel(
   wordLength = 4,
   numberOfWords = 1000
 ) {
+  console.log(model)
   let output = "";
   let generatedWords = [];
   let firstLetter;
@@ -347,19 +379,42 @@ export function generateWordsForGivenModel(
         x => x.letter == firstLetter.successors[j].letter
       );
     }
-
-    console.log(output);
     generatedWords.push(output);
     output = "";
   }
 
   return generatedWords;
 }
+
+export function generateWordsForLetters(letters, wordLength = 4, numberOfWords = 1000) {
+  let output = [];
+  let word = "";
+
+  letters[0].dyst = letters[0].prob;
+
+  for (let i = 1; i < letters.length; i++) {
+    letters[i].dyst = letters[i - 1].dyst + +letters[i].prob;
+  }
+
+  for (let j = 0; j < numberOfWords; j++) {
+
+    for (let j = 0; j < wordLength; j++) {
+      let luck = Math.random();
+      let j = 0;
+
+      while (luck > letters[j].dyst) j++;
+      word += letters[j].letter;
+    }
+    output.push(word);
+    word = "";
+  }
+  return output;
+}
+
 function probGreaterThanOne(letters) {
   let sum = letters.reduce((prev, curr) => {
     return prev + +curr.prob;
   }, 0);
-  console.log("SUMING", sum, Math.round(sum));
   if (Math.round(sum) > 1) {
     console.error("Probability greater than one");
     return true;

@@ -13,9 +13,10 @@ import TableChart from "@material-ui/icons/TableChart";
 import CloudDownload from "@material-ui/icons/CloudDownload";
 import Folder from "@material-ui/icons/Folder";
 import Casino from "@material-ui/icons/Casino";
+import Lock from "@material-ui/icons/Lock";
+
 import "./NavBar.css";
 import * as notify from "./../../logic/notify";
-import * as calc from "../../logic/calc";
 import { Link } from "react-router-dom";
 
 const styles = {
@@ -49,7 +50,7 @@ class MenuAppBar extends React.Component {
     this.props.onInputMethodChanged(newMethod);
   }
   loadTextFromFile(file, type) {
-    if (type != "text/plain")
+    if (type !== "text/plain")
       return notify.showSnackbar("Niedozowlone rozszerzenie pliku", "error");
 
     let fileReader = new FileReader();
@@ -142,6 +143,17 @@ class MenuAppBar extends React.Component {
                 this.loadTextFromFile(e.target.files[0], e.target.files[0].type)
               }
             />
+            <Tooltip title="Huffman">
+              <IconButton
+                className={classes.menuButton}
+                component={Link}
+                to="/huffman"
+                aria-haspopup="true"
+                color="inherit"
+              >
+                <Lock />
+              </IconButton>
+            </Tooltip>
             <Tooltip title="Repozytorium">
               <IconButton
                 className={classes.menuButton}

@@ -12,8 +12,8 @@ import ProbabilisticScreen from "./Components/ProbabilisticScreen/ProbabilisticS
 import ExpansionPanel from "@material-ui/core/ExpansionPanel";
 import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
-import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import HuffmanScreen from "./Components/HuffmanScreen/HuffmanScreen";
 
 import "./App.css";
 import * as calc from "./logic/calc";
@@ -23,14 +23,8 @@ import * as downloader from "./logic/downloader";
 class App extends Component {
   constructor(props) {
     super(props);
-    this.showSnackBar = this.showSnackBar.bind(this);
-    this.closeSnackBar = this.closeSnackBar.bind(this);
-    this.showProgressbar = this.showProgressbar.bind(this);
-    this.hideProgressbar = this.hideProgressbar.bind(this);
 
     notify.snackBarCallbacks.push(this.showSnackBar);
-    notify.showProgressbarCallbacks.push(this.showProgressbar);
-    notify.hideProgressbarCallbacks.push(this.hideProgressbar);
 
     this.state = {
       results: [],
@@ -41,11 +35,10 @@ class App extends Component {
       popupMessage: "",
       popupVariant: "error",
       generatedText: "Wprowadź zdanie do przetworzenia",
-      isLoading: false
     };
   }
 
-  downloadGeneratedString() {
+  downloadGeneratedString = () => {
     if (calc.isEmpty(this.state.generatedText) || this.state.results.length < 1)
       return notify.showSnackbar(
         "Nie można pobrać, bo żaden tekst nie został wygenerowany",
@@ -59,7 +52,7 @@ class App extends Component {
 
     downloader.download(content, "encoding.huff", "octet/stream");
   }
-  displayData(data, generatedText) {
+  displayData = (data, generatedText) => {
     let i = 0;
 
     data.forEach(x => {
@@ -76,32 +69,23 @@ class App extends Component {
     }));
   }
 
-  handleCalculationFromFile(text) {
+  handleCalculationFromFile = (text) => {
     let data = calc.calculateHuffmanCodeForString(text);
     this.displayData(data, text);
   }
-  showSnackBar(msg, variant) {
+  showSnackBar = (msg, variant) => {
     this.setState({
       isPopOpen: true,
       popupMessage: msg,
       popupVariant: variant
     });
   }
-  closeSnackBar() {
+  closeSnackBar = () => {
     this.setState({
       isPopOpen: false
     });
   }
-  showProgressbar() {
-    this.setState({
-      isLoading: true
-    });
-  }
-  hideProgressbar() {
-    this.setState({
-      isLoading: false
-    });
-  }
+
   render() {
     return (
       <Router>
@@ -155,6 +139,7 @@ class App extends Component {
               )}
             />
             <Route path="/generate/" component={ProbabilisticScreen} />
+            <Route path="/huffman/" component={HuffmanScreen} />
           </section>
           <ExpansionPanel>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>

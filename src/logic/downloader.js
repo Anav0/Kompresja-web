@@ -1,5 +1,4 @@
 import * as calc from "./calc";
-import * as notify from "./notify";
 
 export function downloadTextArray(words, fileName = "text") {
   if (!words) return;

@@ -12,7 +12,7 @@
   margin-top: 1rem;
   margin-bottom: 1rem;
 
-  color: gray;
+  color: var(--second-color);
   cursor: pointer;
 }
 .bottomResult-container:hover .bottomResult-info-icon {

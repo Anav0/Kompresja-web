@@ -110,10 +110,11 @@ export default class LetterInput extends Component {
     });
   }
   downloadRandomWords = () => {
-    let words = calc.generateWordsForLetters(this.state.rows);
-    console.log(words);
-    downloadTextArray(words,"words");
-
+    let stringBasedOnLetters = calc.generateStringWithGivenProb(this.state.rows);
+    let letters = calc.calculateLettersProbAndFreq(stringBasedOnLetters);
+    letters = calc.calculateLettersDystribution(letters);
+    let words = calc.generateWordsForGivenModel(letters, 4, 100, "B");
+    downloadTextArray(words, "words");
   }
   render() {
     return (

@@ -70,13 +70,6 @@ class MenuAppBar extends React.Component {
       <div className={classes.root}>
         <AppBar position="static">
           <Toolbar>
-            <IconButton
-              className={classes.menuButton}
-              color="inherit"
-              aria-label="Menu"
-            >
-              <MenuIcon />
-            </IconButton>
             <Typography variant="h6" color="inherit" className={classes.grow}>
               Kodowanie i kompresja
             </Typography>
@@ -113,7 +106,7 @@ class MenuAppBar extends React.Component {
                 <TableChart />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Pobierz">
+            <Tooltip title="Pobierz wygenerowany tekst">
               <IconButton
                 className={classes.menuButton}
                 aria-haspopup="true"
@@ -123,7 +116,7 @@ class MenuAppBar extends React.Component {
                 <CloudDownload />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Wczytaj z pliku">
+            <Tooltip title="Wczytaj tekst z pliku">
               <IconButton
                 className={classes.menuButton}
                 aria-haspopup="true"

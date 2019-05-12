@@ -1,12 +1,21 @@
 
-export function getLettersProbAndFreqFromText(sentence, trimSentence = true) {
-  if (isEmpty(sentence)) return;
+export function calculateLettersProb(letters) {
 
-  if (trimSentence) sentence = sentence.trim();
+  let numberOfLetters = letters.reduce((sum, x) => {
+    return sum + x.occures;
+  }, 0)
+  console.log(numberOfLetters)
+  //Calculate probability
+  for (var pair of letters) {
+    pair.prob = pair.occures / numberOfLetters;
+  }
 
-  var letters = [];
+  return letters.sort((a, b) => a.prob - b.prob);
+}
 
-  var occured = false;
+export function calculateLettersFreq(sentence) {
+  let letters = [];
+  let occured = false;
 
   //Calculate occurances
   for (var char of sentence.split("")) {
@@ -21,18 +30,30 @@ export function getLettersProbAndFreqFromText(sentence, trimSentence = true) {
 
     occured = false;
   }
-  //Calculate probability
-  for (var pair of letters) {
-    pair.prob = pair.occures / sentence.length;
-  }
-
   return letters;
+}
+
+export function calculateLettersDystribution(letters) {
+  if (letters.length > 1)
+    letters = letters.sort((a, b) => b.prob - a.prob);
+  letters[0].dyst = letters[0].prob;
+  for (let i = 1; i < letters.length; i++) {
+    letters[i].dyst = letters[i - 1].dyst + +letters[i].prob;
+  }
+  return letters;
+}
+
+export function calculateLettersProbAndFreq(sentence, trimSentence = true) {
+  if (isEmpty(sentence)) return;
+  if (trimSentence) sentence = sentence.trim();
+
+  return calculateLettersProb(calculateLettersFreq(sentence));
 }
 
 export function calculateEntropyForString(sentence) {
   if (isEmpty(sentence)) return;
 
-  const letters = getLettersProbAndFreqFromText(sentence);
+  const letters = calculateLettersProbAndFreq(sentence);
   if (!letters) return;
 
   return calculateEntropyForLetters(letters);
@@ -52,7 +73,7 @@ export function calculateEntropyForLetters(letters) {
 }
 
 export function calculateHuffmanCodeForString(sentence) {
-  var letters = getLettersProbAndFreqFromText(sentence);
+  var letters = calculateLettersProbAndFreq(sentence);
 
   return calculateHuffmanCodeForLetters(letters);
 }
@@ -160,6 +181,7 @@ function treverseTree(code, letter, tree) {
 
   return code;
 }
+
 export function calculateAverageCodeLength(letters) {
   var output = 0;
   if (!letters) return;
@@ -190,11 +212,7 @@ export function generateRandomAsciiString(length = 100) {
 export function generateStringWithGivenProb(letters, length = 5000000) {
   let output = "";
 
-  letters[0].dyst = letters[0].prob;
-
-  for (let i = 1; i < letters.length; i++) {
-    letters[i].dyst = letters[i - 1].dyst + +letters[i].prob;
-  }
+  letters = calculateLettersDystribution(letters);
 
   for (let j = 0; j < length; j++) {
     var luck = Math.random();
@@ -235,166 +253,122 @@ litery "b" po "a" dzielimy przez liczbę wystąpień litery "a" a nie wszystkich
 zakładając że a wystąpiło 5 razy byłoby to 3/5 itd. itp.
 */
 export function generateProbModelForGivenWords(words) {
-  let tables = [];
-  let successorFound = false;
-  let tableFound = false;
+  let model = [];
 
   //Dla każdego słowa
   for (let word of words) {
-    //Dzielimy słowo na znaki
-    let letters = word.split("");
-    console.log("==========");
-    console.log(word);
-
-    //Dla każdego znaku
-    for (let i = 0; i < letters.length; i++) {
-      //Bierzemy następujące po sobie znaki
-      let letter1 = letters[i];
-      let letter2 = letters[i + 1];
-      // console.log("----------");
-      // console.log("Znak 1", letter1);
-      // console.log("Znak 2", letter2);
-      //Szukamy tabeli występień pierwszego znaku
-      let foundTable;
-      for (let table of tables) {
-        //Jeśli ją mamy to:
-        if (table.letter == letter1) {
-          tableFound = true;
-          //Zwiększamy ilość wystąpień tego znaku
-          table.occures++;
-          foundTable = table;
-          break;
-        }
-      }
-
-      //jeśli jej nie mamy to ją dodajemy
-      if (!tableFound) {
-        foundTable = {
-          letter: letter1,
-          occures: 1,
-          successors: []
-        };
-        tables.push(foundTable);
-      }
-      tableFound = false;
-
-      if (!letter2) break;
-
-      //Sprawdzamy czy drugi znak wystąpił już w tabeli wystąpień znaku pierwszego
-      for (let successor of foundTable.successors) {
-        //Jeżeli wystąpił to zwiększamy liczbę jego wystąpień o 1
-        if (successor.letter == letter2) {
-          successorFound = true;
-          successor.occures++;
-          break;
-        }
-      }
-      //Jeśli drugi znak nie wystąpił to go dodajemy
-      if (!successorFound)
-        foundTable.successors.push({
-          letter: letter2,
-          occures: 1,
-          prob: 0,
-          dyst: 0
-        });
-      successorFound = false;
-    }
-  }
-  //Jak już wiemy ile razy dany znak nastąpił do innym to możemy obliczyć:
-  //Prob
-  const numberOfLetters = tables.reduce(
-    (total, letter) => total + +letter.occures,
-    0
-  );
-  for (let x of tables) {
-    x.prob = x.occures / numberOfLetters;
+    model = calculateSuccessors(word, model);
   }
 
-  tables[0].dyst = tables[0].prob;
-  for (let i = 1; i < tables.length; i++) {
-    tables[i].dyst = tables[i - 1].dyst + +tables[i].prob;
+  model = calculateLettersProb(model);
+  model = calculateLettersDystribution(model);
+
+  for (let letter of model) {
+    if (letter.successors && letter.successors.length > 0)
+      letter.successors = calculateLettersDystribution(calculateLettersProb(letter.successors));
   }
 
-  for (let letter of tables) {
-    const numberOfSuccesors = letter.successors.reduce(
-      (total, succesor) => total + +succesor.occures,
-      0
-    );
-
-    for (let successor of letter.successors) {
-      successor.prob = successor.occures / numberOfSuccesors;
-    }
-  }
-  //Dyst
-  for (let j = 0; j < tables.length; j++) {
-    console.log(tables, j);
-
-    if (tables[j].successors.length < 1) continue;
-
-    tables[j].successors[0].dyst = tables[j].successors[0].prob;
-    for (let o = 1; o < tables[j].successors.length; o++) {
-      let successor = tables[j].successors[o];
-      successor.dyst =
-        tables[j].successors[o - 1].dyst + +tables[j].successors[o].prob;
-    }
-  }
-
-  //console.log(tables);
-  return tables;
+  return model;
 }
-/*
-  1. Zaczynamy od liter A
-  2. Losujemy kolejny znak w oparciu o tablicę następników
-  3. Jeśli słowo nie ma jeszcze danej długości to losujemy kolejny znak w oparciu
-     o tablicę następników tego znaku
-*/
+
+function calculateSuccessors(word, prevModel, context = 1) {
+
+  if (!word || word.trim() === "") return prevModel;
+  let letters = word.split("");
+
+  switch (context) {
+    default:
+    case 1:
+      prevModel = getSuccessorsContext1(letters, prevModel);
+      break;
+    case 2:
+      prevModel = getSuccessorsContext2(letters, prevModel);
+      break;
+  }
+
+  return prevModel;
+}
+function getSuccessorsContext1(letters, prevModel) {
+  let successorFound = false;
+  let tableFound = false;
+  //Dla każdego znaku
+  for (let i = 0; i < letters.length; i++) {
+    //Bierzemy następujące po sobie znaki
+    let letter1 = letters[i];
+    let letter2 = letters[i + 1];
+
+    //Szukamy tabeli występień pierwszego znaku
+    let foundTable;
+    for (let table of prevModel) {
+      //Jeśli ją mamy to:
+      if (table.letter == letter1) {
+        tableFound = true;
+        //Zwiększamy ilość wystąpień tego znaku
+        table.occures++;
+        foundTable = table;
+        break;
+      }
+    }
+
+    //jeśli jej nie mamy to ją dodajemy
+    if (!tableFound) {
+      foundTable = {
+        letter: letter1,
+        occures: 1,
+        successors: []
+      };
+      prevModel.push(foundTable);
+    }
+    tableFound = false;
+
+    if (!letter2) break;
+
+    //Sprawdzamy czy drugi znak wystąpił już w tabeli następników znaku pierwszego
+    for (let successor of foundTable.successors) {
+      //Jeżeli tak zwiększamy liczbę jego wystąpień o 1
+      if (successor.letter == letter2) {
+        successorFound = true;
+        successor.occures++;
+        break;
+      }
+    }
+    //Jeśli drugi znak nie wystąpił to go dodajemy
+    if (!successorFound)
+      foundTable.successors.push({
+        letter: letter2,
+        occures: 1,
+        prob: 0,
+        dyst: 0
+      });
+    successorFound = false;
+  }
+  return prevModel;
+}
+
+function getSuccessorsContext2(letters, prevModel) {
+
+}
+
 export function generateWordsForGivenModel(
   model,
   wordLength = 4,
-  numberOfWords = 1000
+  numberOfWords = 1000,
+  variant = "B",
 ) {
-  console.log(model)
-  let output = "";
-  let generatedWords = [];
-  let firstLetter;
 
-  for (let k = 0; k < numberOfWords; k++) {
-    //Losujemy 1 znak w oparciu o model probabilistyczny wszystkich znaków
-    let luck = Math.random();
-    let o = 0;
-    while (luck > model[o].dyst) o++;
-    firstLetter = model[o];
-    output += firstLetter.letter;
-
-    //Kolejny znak losujemy w oparciu o model probabilistyczny
-    //następników
-    while (output.length < wordLength) {
-      let luck = Math.random();
-      let j = 0;
-
-      while (luck > firstLetter.successors[j].dyst) j++;
-      output += firstLetter.successors[j].letter;
-
-      firstLetter = model.find(
-        x => x.letter == firstLetter.successors[j].letter
-      );
-    }
-    generatedWords.push(output);
-    output = "";
+  switch (variant) {
+    case "B":
+      return generateWordsFromModelVariantB(numberOfWords, wordLength, model)
+    case "C":
+      return generateWordsFromModelVariantC(numberOfWords, wordLength, model)
+    default:
+      return [];
   }
 
-  return generatedWords;
 }
-
-export function generateWordsForLetters(letters, wordLength = 4, numberOfWords = 1000) {
-  let output = [];
+function generateWordsFromModelVariantB(numberOfWords, wordLength, model) {
+  let generatedWords = [];
   let word = "";
-
-  letters[0].dyst = letters[0].prob;
-
-  for (let i = 1; i < letters.length; i++) {
-    letters[i].dyst = letters[i - 1].dyst + +letters[i].prob;
-  }
 
   for (let j = 0; j < numberOfWords; j++) {
 
@@ -402,13 +376,52 @@ export function generateWordsForLetters(letters, wordLength = 4, numberOfWords =
       let luck = Math.random();
       let j = 0;
 
-      while (luck > letters[j].dyst) j++;
-      word += letters[j].letter;
+      while (luck > model[j].dyst) j++;
+      word += model[j].letter;
     }
-    output.push(word);
+    generatedWords.push(word);
     word = "";
   }
-  return output;
+  return generatedWords;
+
+}
+
+function generateWordsFromModelVariantC(numberOfWords, wordLength, model) {
+  let output = "";
+  let letterToAdd;
+  let generatedWords = [];
+
+  for (let k = 0; k < numberOfWords; k++) {
+    //Losujemy 1 znak w oparciu o model probabilistyczny wszystkich znaków
+    let luck = Math.random();
+    let o = 0;
+    while (luck > model[o].dyst) o++;
+    letterToAdd = model[o];
+    output += letterToAdd.letter;
+
+    //Kolejny znak losujemy w oparciu o model probabilistyczny
+    //następników
+    while (output.length < wordLength) {
+      let luck = Math.random();
+      let j = 0;
+
+      while (luck > letterToAdd.successors[j].dyst) j++;
+      output += letterToAdd.successors[j].letter;
+
+      letterToAdd = model.find(
+        x => x.letter == letterToAdd.successors[j].letter
+      );
+    }
+    generatedWords.push(output);
+    output = "";
+  }
+  return generatedWords;
+}
+
+function generateWordsFromModelVariantD(numberOfWords, wordLength, model) {
+  let output = "";
+  let letterToAdd;
+  let generatedWords = [];
 }
 
 function probGreaterThanOne(letters) {

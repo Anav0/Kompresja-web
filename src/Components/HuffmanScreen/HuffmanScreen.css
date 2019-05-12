@@ -1,0 +1,17 @@
+.huffmanScreen-containter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.huffmanScreen-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-items: center;
+  margin: 2rem;
+}
+.huffmanScreen-headers {
+  margin-bottom: 1rem;
+  color: var(--second-color);
+}

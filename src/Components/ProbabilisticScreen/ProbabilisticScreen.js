@@ -16,7 +16,8 @@ import * as calc from "./../../logic/calc";
 import * as downloader from "./../../logic/downloader";
 const styles = theme => ({
   fab: {
-    margin: theme.spacing.unit
+    margin: theme.spacing.unit,
+    fontSize: "1.50rem",
   }
 });
 
@@ -26,7 +27,7 @@ class ProbabilisticScreen extends Component {
 
     this.state = {
       numberOfWords: 0,
-      loadedModel: []
+      loadedWords: []
     };
   }
 
@@ -37,31 +38,47 @@ class ProbabilisticScreen extends Component {
     let fileReader = new FileReader();
     fileReader.onloadend = e => {
       let words = fileReader.result.split(/\r?\n/);
-      const results = calc.generateProbModelForGivenWords(words);
+      let model = calc.generateProbModelForGivenWords(words);
       this.setState({
         numberOfWords: words.length - 1,
-        loadedModel: results
+        loadedWords: model
       });
     };
     fileReader.readAsText(file);
   }
-  generateWordsBasedOnModel() {
-    console.log(this.state);
-
-    if (this.state.loadedModel.length < 1) {
-      return notify.showSnackbar(
-        "Zanim wygenerujesz słowa, wczytaj jakiś model.",
+  isModelLoaded = () => {
+    if (this.state.loadedWords.length < 1) {
+      notify.showSnackbar(
+        "Zanim wygenerujesz słowa, wczytaj plik zawierający czteroliterowe słowa.",
         "error"
       );
+      return false;
     }
 
-    const words = calc.generateWordsForGivenModel(this.state.loadedModel);
-    console.log(words);
-
-    console.log(words);
+    return true;
+  }
+  generateWordsBasedOnModel(variant) {
+    if (!this.isModelLoaded()) return;
+    let words = [];
+    switch (variant) {
+      case "B":
+        words = calc.generateWordsForGivenModel(this.state.loadedWords, 4, 100, variant);
+        break;
+      case "C":
+        words = calc.generateWordsForGivenModel(this.state.loadedWords, 4, 100, variant);
+        break;
+      case "D":
+        //words = calc.generateProbModelForGivenWords(this.state.loadedWords);
+        break;
+      default:
+        words = calc.generateWordsForGivenModel(this.state.loadedWords, 4, 100, variant);
+        break;
+    }
 
     downloader.downloadTextArray(words, "words");
   }
+
+
   render() {
     const { classes } = this.props;
     return (
@@ -70,7 +87,7 @@ class ProbabilisticScreen extends Component {
           Ilość wczytanych słów: {this.state.numberOfWords}
         </h2>
         <ul className="probScreen-words-container">
-          {this.state.loadedModel.map(row => {
+          {this.state.loadedWords.map(row => {
             return (
               <Word
                 letter={row.letter}
@@ -81,13 +98,33 @@ class ProbabilisticScreen extends Component {
           })}
         </ul>
         <div className="probScreen-fab-container">
+
           <Tooltip title="Generuj słowa w oparciu o wczytany model">
             <Fab
-              onClick={() => this.generateWordsBasedOnModel()}
+              onClick={() => this.generateWordsBasedOnModel("B")}
               color="primary"
               className={classes.fab}
             >
-              <Casino />
+              B
+            </Fab>
+          </Tooltip>
+          <Tooltip title="Generuj słowa w oparciu o wczytany model">
+            <Fab
+              onClick={() => this.generateWordsBasedOnModel("C")}
+              color="primary"
+              className={classes.fab}
+            >
+              C
+            </Fab>
+          </Tooltip>
+          <Tooltip title="Generuj słowa w oparciu o wczytany model">
+            <Fab
+              disabled
+              onClick={() => this.generateWordsBasedOnModel("D")}
+              color="primary"
+              className={classes.fab}
+            >
+              D
             </Fab>
           </Tooltip>
           <Tooltip title="Wczytaj model">

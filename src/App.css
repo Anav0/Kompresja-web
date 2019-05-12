@@ -2,6 +2,7 @@
   width: 100%;
   height: 100%;
   display: flex;
+  overflow: auto;
   flex-direction: column;
   /* grid-template-columns: auto; */
   /* grid-template-rows: auto auto 2fr 2fr 2fr; */

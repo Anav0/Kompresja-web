@@ -8,5 +8,5 @@
   background-color: white;
 }
 .app-expandPanel-header {
-  color: gray;
+  color: var(--second-color);
 }

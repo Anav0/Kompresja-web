@@ -1,16 +1,34 @@
 .word-container {
   display: grid;
+  grid-template-rows: 100px 1fr;
   align-items: center;
   justify-content: center;
   padding: 1rem;
   margin: 1rem;
-  width: 30rem;
+  width: 40rem;
+  max-width: 100%;
   max-height: 100%;
-  grid-template-rows: 1fr 2fr;
+  height: 25rem;
 }
-.word-letter-occur {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.word-container * {
+  max-width: 100%;
+  max-height: 100%;
+}
+.word-header{
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+width: 100%;
+height: 100%;
+color:var(--second-color);
+}
+.word-letter{
+  font-size: 2.5rem;
+}
+.word-table-wrapper{
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  overflow-x: hidden;
 }

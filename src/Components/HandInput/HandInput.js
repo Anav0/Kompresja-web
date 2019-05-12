@@ -9,7 +9,7 @@ import InputBase from "@material-ui/core/InputBase";
 const styles = {
   root: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "center",
     width: "100%",
     height: "100%"
@@ -22,14 +22,12 @@ class HandInput extends React.Component {
     this.state = {
       inputValue: ""
     };
-    this.handleChange = this.handleChange.bind(this);
-    this.handleCalculate = this.calculate.bind(this);
   }
-  handleChange(e) {
+  handleChange = (e) => {
     e.preventDefault();
     this.setState({ inputValue: e.target.value });
   }
-  calculate(e) {
+  handleCalculate = (e) => {
     if (e.key !== "Enter") return;
     if (calc.isEmpty(this.state.inputValue)) return;
 

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import "./HuffmanScreen.css";
 import * as notify from "./../../logic/notify";
 import * as calc from "./../../logic/calc";
+// import * as compressor from "../../logic/Huffman/compressor"
 
 export default class HuffmanScreen extends Component {
   constructor(props) {
@@ -15,33 +16,14 @@ export default class HuffmanScreen extends Component {
   compressFiles(files) {
     if (files.length < 1)
       notify.showSnackbar(
-        "Żaden plik nie został wygrany do skompresowania",
+        "Żaden plik nie został wgrany do skompresowania",
         "error"
       );
 
     for (let file of files) {
-      let reader = new FileReader();
-
-      // eslint-disable-next-line no-loop-func
-      reader.onload = e => {
-        if (reader.error)
-          return notify.showSnackbar(
-            "Błąd podczas próby kompresji pliku",
-            "error"
-          );
-
-        let content = reader.result;
-
-        const letters = calc.calculateLettersProbAndFreq(content);
-        const processedLetters = calc.calculateHuffmanCodeForLetters(letters);
-        const tree = calc.calculateHuffmanTreeFromLetters(letters);
-        console.log(calc.encodeTextUsingHuffmanTree(content, tree));
-
-        // console.log(content, tree, encodedText, decodedText);
-      };
-      reader.readAsBinaryString(file);
     }
   }
+
   decompressFiles(files) {
     if (files.length < 1)
       notify.showSnackbar(

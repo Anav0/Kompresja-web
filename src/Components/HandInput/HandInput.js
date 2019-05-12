@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import "./HandInput.css";
 import * as calc from "../../logic/calc";
+import * as huffman from "../../logic/huffman";
 import Paper from "@material-ui/core/Paper";
 import InputBase from "@material-ui/core/InputBase";
 
@@ -31,7 +32,7 @@ class HandInput extends React.Component {
     if (e.key !== "Enter") return;
     if (calc.isEmpty(this.state.inputValue)) return;
 
-    let calculationRes = calc.calculateHuffmanCodeForString(
+    let calculationRes = huffman.calculateHuffmanCodeForString(
       this.state.inputValue
     );
     //Invoke callback to parent

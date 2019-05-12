@@ -17,6 +17,7 @@ import HuffmanScreen from "./Components/HuffmanScreen/HuffmanScreen";
 
 import "./App.css";
 import * as calc from "./logic/calc";
+import * as huffman from "./logic/huffman";
 import * as notify from "./logic/notify";
 import * as downloader from "./logic/downloader";
 
@@ -70,7 +71,7 @@ class App extends Component {
   }
 
   handleCalculationFromFile = (text) => {
-    let data = calc.calculateHuffmanCodeForString(text);
+    let data = huffman.calculateHuffmanCodeForString(text);
     this.displayData(data, text);
   }
   showSnackBar = (msg, variant) => {

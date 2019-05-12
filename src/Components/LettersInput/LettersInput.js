@@ -12,6 +12,7 @@ import * as calc from "./../../logic/calc";
 import * as notify from "./../../logic/notify";
 import InputBase from "@material-ui/core/InputBase";
 import { downloadTextArray } from "../../logic/downloader";
+import * as huffman from "../../logic/huffman";
 
 export default class LetterInput extends Component {
   constructor(props) {
@@ -50,7 +51,7 @@ export default class LetterInput extends Component {
   }
   handleProbChange(e) {
     e.preventDefault();
-    this.setState({ newProb: e.target.value });
+    this.setState({ newProb: +e.target.value });
   }
   handleLetterChange(e) {
     e.preventDefault();
@@ -69,11 +70,13 @@ export default class LetterInput extends Component {
   generateTextAndHuffmanCode() {
     return new Promise(resolve => {
 
+      console.log(this.state.rows);
+
       if (this.getSumOfRowProbability() != 1)
         return notify.showSnackbar("Prawdopodobieństwo nie sumuje się do 1");
 
       let sentence = calc.generateStringWithGivenProb(this.state.rows);
-      let calculationRes = calc.calculateHuffmanCodeForString(sentence);
+      let calculationRes = huffman.calculateHuffmanCodeForString(sentence);
       //Invoke callback to parent
       this.props.onCalculate(calculationRes, sentence);
       resolve();

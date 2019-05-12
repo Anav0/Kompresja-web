@@ -58,29 +58,21 @@ export default class LetterInput extends Component {
     this.setState({ newLetter: e.target.value });
   }
 
-  async downloadTextAndHuffmanCodeAsync() {
-    await this.generateTextAndHuffmanCode().then(results => {
-    });
-  }
   getSumOfRowProbability = () => {
     return this.state.rows.reduce((prev, curr) => {
       return prev + +curr.prob;
     }, 0);
   }
   generateTextAndHuffmanCode() {
-    return new Promise(resolve => {
 
-      console.log(this.state.rows);
+    if (this.getSumOfRowProbability() != 1)
+      return notify.showSnackbar("Prawdopodobieństwo nie sumuje się do 1");
 
-      if (this.getSumOfRowProbability() != 1)
-        return notify.showSnackbar("Prawdopodobieństwo nie sumuje się do 1");
+    let sentence = calc.generateStringWithGivenProb(this.state.rows);
+    let calculationRes = huffman.calculateHuffmanCodeForString(sentence);
 
-      let sentence = calc.generateStringWithGivenProb(this.state.rows);
-      let calculationRes = huffman.calculateHuffmanCodeForString(sentence);
-      //Invoke callback to parent
-      this.props.onCalculate(calculationRes, sentence);
-      resolve();
-    });
+    //Invoke callback to parent
+    this.props.onCalculate(calculationRes, sentence);
   }
   handleExistingLetterChange(e, row) {
     if (e.target.value.length != 1)
@@ -162,7 +154,7 @@ export default class LetterInput extends Component {
             </TableRow>
           </TableBody>
         </Table>
-        <Button onClick={() => this.downloadTextAndHuffmanCodeAsync()} color="primary">
+        <Button onClick={() => this.generateTextAndHuffmanCode()} color="primary">
           Oblicz
         </Button>
         <Button onClick={() => this.downloadRandomWords()} color="secondary">

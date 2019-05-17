@@ -3,13 +3,9 @@ import "./ProbabilisticScreen.css";
 import Word from "./Word";
 import {
   Fab,
-  Icon,
   Tooltip,
   withStyles,
-  Modal,
-  Paper
 } from "@material-ui/core";
-import Casino from "@material-ui/icons/Casino";
 import InsertDriveFile from "@material-ui/icons/InsertDriveFile";
 import * as notify from "./../../logic/notify";
 import * as calc from "./../../logic/calc";
@@ -81,6 +77,7 @@ class ProbabilisticScreen extends Component {
 
   render() {
     const { classes } = this.props;
+
     return (
       <section className="probScreen-container">
         <h2 className="probScreen-words">

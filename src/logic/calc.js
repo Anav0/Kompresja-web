@@ -34,8 +34,11 @@ export function calculateLettersFreq(sentence) {
 }
 
 export function calculateLettersDystribution(letters) {
+  if (letters.filter(x => !x.prob) > 0)
+    throw new Error("Symbole nie mają obliczonej częstości")
+
   if (letters.length > 1)
-    letters = letters.sort((a, b) => b.prob - a.prob);
+    letters = letters.sort((a, b) => (a.letter > b.letter) ? 1 : -1);
   letters[0].dyst = letters[0].prob;
   for (let i = 1; i < letters.length; i++) {
     letters[i].dyst = letters[i - 1].dyst + +letters[i].prob;

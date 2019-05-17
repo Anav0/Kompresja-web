@@ -1,0 +1,10 @@
+.alghoritmicResultsModal-container{
+    padding: 1rem;
+    width: 30rem;
+}
+
+.alghoritmicResultsModal-section{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}

@@ -123,7 +123,7 @@ class App extends Component {
               path="/hand/"
               render={props => (
                 <HandInput
-                  placeholder={this.state.generatedText}
+                  placeholder="Wprowadź zdanie"
                   onCalculate={(data, text) => this.displayData(data, text)}
                 />
               )}

@@ -9,12 +9,9 @@ export function calculateHuffmanCodeForString(sentence) {
 export function calculateHuffmanCodeForLetters(letters) {
     let fullLength = letters.length;
     letters = calculateHuffmanTreeFromLetters(letters);
-
     //Przypisz słowa kodowe
     while (letters.length !== fullLength) {
-        letters.sort((a, b) => {
-            return b.letter.length - a.letter.length;
-        });
+        letters.sort((a, b) => (a.letter.length < b.letter.length) ? 1 : -1)
 
         //Get first letter
         var firstLetter = letters[0];
@@ -41,9 +38,7 @@ export function calculateHuffmanTreeFromLetters(letters) {
     var fullLength = letters.length;
     for (let i = 0; i < fullLength; i++) {
         //Sort by probability descending
-        letters.sort((a, b) => {
-            return b.prob - a.prob;
-        });
+        letters.sort((a, b) => (a.prob < b.prob) ? 1 : -1)
 
         //if i=n-2
         if (letters.length == 2) break;
@@ -67,6 +62,5 @@ export function calculateHuffmanTreeFromLetters(letters) {
 
     letters[0].code = "1";
     letters[1].code = "0";
-    console.log(letters)
     return letters;
 }

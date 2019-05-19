@@ -10,7 +10,7 @@ export function calculateLettersProb(letters) {
     pair.prob = pair.occures / numberOfLetters;
   }
 
-  return letters.sort((a, b) => a.prob - b.prob);
+  return letters.sort((a, b) => (a.letter > b.letter) ? 1 : -1);
 }
 
 export function calculateLettersFreq(sentence) {

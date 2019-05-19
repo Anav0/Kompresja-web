@@ -98,10 +98,11 @@ class LetterInput extends Component {
       return notify.showSnackbar("Prawdopodobieństwo nie sumuje się do 1");
 
     let sentence = calc.generateStringWithGivenProb(this.state.rows);
-    let calculationRes = huffman.calculateHuffmanCodeForString(sentence);
+    let tree = huffman.getTreeFromSentence(sentence);
+    let letters = huffman.getLettersFromTree(tree);
 
     //Invoke callback to parent
-    this.props.onCalculate(calculationRes, sentence);
+    this.props.onCalculate(letters, sentence);
   }
 
   handleExistingLetterChange(e, row) {

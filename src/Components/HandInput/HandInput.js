@@ -3,9 +3,11 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import "./HandInput.css";
 import * as calc from "../../logic/calc";
+import * as notify from "../../logic/notify";
 import * as huffman from "../../logic/huffman";
 import Paper from "@material-ui/core/Paper";
 import InputBase from "@material-ui/core/InputBase";
+import _ from "lodash";
 
 const styles = {
   root: {
@@ -32,11 +34,22 @@ class HandInput extends React.Component {
     if (e.key !== "Enter") return;
     if (calc.isEmpty(this.state.inputValue)) return;
 
-    let calculationRes = huffman.calculateHuffmanCodeForString(
-      this.state.inputValue
-    );
+    try{
+
+        let tree = huffman.getTreeFromSentence(
+          this.state.inputValue
+        );
+
+        let letters = huffman.getLettersFromTree(tree);
+
+        this.props.onCalculate(letters, this.state.inputValue);
+    }
+    catch(err)
+    {
+      console.error(err);
+      notify.showSnackbar(err.message);
+    }
     //Invoke callback to parent
-    this.props.onCalculate(calculationRes, this.state.inputValue);
   }
   render() {
     const { classes } = this.props;

@@ -14,7 +14,7 @@ import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import HuffmanScreen from "./Components/HuffmanScreen/HuffmanScreen";
-
+import _ from "lodash";
 import "./App.css";
 import * as calc from "./logic/calc";
 import * as huffman from "./logic/huffman";
@@ -36,6 +36,7 @@ class App extends Component {
       popupMessage: "",
       popupVariant: "error",
       generatedText: "Wprowadź zdanie do przetworzenia",
+      huffmanEncodedText: ""
     };
   }
 
@@ -61,18 +62,38 @@ class App extends Component {
       i++;
     });
 
-    this.setState((state, props) => ({
+    let encodedText = "";
+    let decodedText = "";
+    //TODO: getTreeFromLetter works wrong but getTreeFromSentence is legit
+    let tree = huffman.getTreeFromSentence(generatedText);
+
+    console.log("TREE", tree);
+
+    try {
+      encodedText = huffman.encodeText(generatedText, _.cloneDeep(data));
+      console.log(encodedText);
+      decodedText = huffman.decode(encodedText, _.cloneDeep(tree));
+    }
+    catch (err) {
+      console.log(err);
+      notify.showSnackbar(err.message);
+    }
+    this.setState(() => ({
       results: data,
       redundancy: calc.calculateRedundancy(data),
       codeLength: calc.calculateAverageCodeLength(data),
       entropy: calc.calculateEntropyForLetters(data),
-      generatedText: generatedText
+      generatedText: generatedText,
+      huffmanEncodedText: encodedText
     }));
+
+
   }
 
   handleCalculationFromFile = (text) => {
-    let data = huffman.calculateHuffmanCodeForString(text);
-    this.displayData(data, text);
+    let tree = huffman.getTreeFromSentence(text);
+    let letters = huffman.getLettersFromTree(tree);
+    this.displayData(letters, text);
   }
   showSnackBar = (msg, variant) => {
     this.setState({
@@ -99,7 +120,6 @@ class App extends Component {
               vertical: "top"
             }}
             open={this.state.isPopOpen}
-            onRequestClose={() => this.closeSnackBar()}
             onClose={() => this.closeSnackBar()}
           >
             <MySnackbarContent

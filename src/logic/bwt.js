@@ -1,4 +1,4 @@
-const text = "jest_test";
+const text = "banana";
 
 function cycleShift(text) {
   let letters = [...text];
@@ -35,12 +35,16 @@ function bwt(O) {
   return output;
 }
 
-function mtf(O) {
-  let symbols = [...new Set(O.split(""))];
+function mtf(O, text) {
+  console.log(text);
+  let symbols = [...new Set(O.split(""))]
+  symbols =  symbols.sort();
+  console.log(symbols);
   let output = "";
+  let splitedText = text.split("");
   O = O.split("");
-
-  for (let symbol of O) {
+  
+  for (let symbol of splitedText) {
     let code = symbols.indexOf(symbol);
     output += code;
     symbols.unshift(...symbols.splice(code, 1))
@@ -69,4 +73,4 @@ let T = bwt(O, I);
 console.log("T", T);
 
 
-console.log("mtf", mtf(O, I));
+console.log("mtf", mtf(O, text));

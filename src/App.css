@@ -16,3 +16,25 @@
   margin: 2rem;
   flex-grow: 1;
 }
+.app-huffman-container{
+  display:flex;
+  flex-direction: column;
+
+}
+.app-huffman-section{
+  display:flex;
+  flex-direction: row;
+
+  align-items: baseline;
+}
+.app-huffman-value{
+  margin-left: 1rem;
+  color:gray;
+  word-break: break-all;
+
+}
+
+.app-huffman-header{
+  font-weight: normal;
+
+}

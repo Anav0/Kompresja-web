@@ -6,12 +6,14 @@ import ResultsScreen from "./Components/ResultsScreen/ResultsScreen";
 import BottomResults from "./Components/BottomResults/BottomResults";
 import LettersInput from "./Components/LettersInput/LettersInput";
 import MySnackbarContent from "./Components/LettersInput/MySnackbarContent";
-import Snackbar from "@material-ui/core/Snackbar";
-import LinearProgress from "@material-ui/core/LinearProgress";
 import ProbabilisticScreen from "./Components/ProbabilisticScreen/ProbabilisticScreen";
-import ExpansionPanel from "@material-ui/core/ExpansionPanel";
-import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
+import {
+  Snackbar,
+  LinearProgress,
+  ExpansionPanel,
+  ExpansionPanelSummary,
+  ExpansionPanelDetails
+} from "@material-ui/core/"
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import HuffmanScreen from "./Components/HuffmanScreen/HuffmanScreen";
 import _ from "lodash";
@@ -28,65 +30,51 @@ class App extends Component {
     notify.snackBarCallbacks.push(this.showSnackBar);
 
     this.state = {
-      results: [],
+      letters: [],
       redundancy: 0,
       codeLength: 0,
       entropy: 0,
       isPopupOpen: false,
       popupMessage: "",
       popupVariant: "error",
-      generatedText: "Wprowadź zdanie do przetworzenia",
-      huffmanEncodedText: ""
+      generatedText: "",
+      huffmanEncodedText: "",
+      huffmanDecodedText: ""
     };
   }
 
   downloadGeneratedString = () => {
-    if (calc.isEmpty(this.state.generatedText) || this.state.results.length < 1)
+    if (calc.isEmpty(this.state.generatedText) || this.state.letters.length < 1)
       return notify.showSnackbar(
         "Nie można pobrać, bo żaden tekst nie został wygenerowany",
         "warning"
       );
 
     downloader.download(this.state.generatedText, "calc.txt", "text/plain");
-    let content = this.state.results.reduce((code, letter) => {
+    let content = this.state.letters.reduce((code, letter) => {
       return code + letter.code;
     }, "");
 
     downloader.download(content, "encoding.huff", "octet/stream");
   }
-  displayData = (data, generatedText) => {
+
+  displayData = (letters, generatedText, encoded = "", decoded = "") => {
     let i = 0;
 
-    data.forEach(x => {
+    letters.forEach(x => {
       x.id = i;
       i++;
     });
 
-    let encodedText = "";
-    let decodedText = "";
-    //TODO: getTreeFromLetter works wrong but getTreeFromSentence is legit
-    let tree = huffman.getTreeFromSentence(generatedText);
-
-    console.log("TREE", tree);
-
-    try {
-      encodedText = huffman.encodeText(generatedText, _.cloneDeep(data));
-      console.log(encodedText);
-      decodedText = huffman.decode(encodedText, _.cloneDeep(tree));
-    }
-    catch (err) {
-      console.log(err);
-      notify.showSnackbar(err.message);
-    }
     this.setState(() => ({
-      results: data,
-      redundancy: calc.calculateRedundancy(data),
-      codeLength: calc.calculateAverageCodeLength(data),
-      entropy: calc.calculateEntropyForLetters(data),
+      letters: letters,
+      redundancy: calc.calculateRedundancy(letters),
+      codeLength: calc.calculateAverageCodeLength(letters),
+      entropy: calc.calculateEntropyForLetters(letters),
       generatedText: generatedText,
-      huffmanEncodedText: encodedText
+      huffmanEncodedText: encoded,
+      huffmanDecodedText: decoded,
     }));
-
 
   }
 
@@ -95,6 +83,7 @@ class App extends Component {
     let letters = huffman.getLettersFromTree(tree);
     this.displayData(letters, text);
   }
+
   showSnackBar = (msg, variant) => {
     this.setState({
       isPopOpen: true,
@@ -102,10 +91,24 @@ class App extends Component {
       popupVariant: variant
     });
   }
+
   closeSnackBar = () => {
     this.setState({
       isPopOpen: false
     });
+  }
+
+  onHandInput = (letters, text) => {
+    try {
+      let encoded = huffman.encode(text, _.cloneDeep(letters));
+      let tree = huffman.getTreeFromSentence(text);
+      let decoded = huffman.decode(encoded, tree)
+      this.displayData(letters, text, encoded, decoded)
+    }
+    catch (err) {
+      console.log(err);
+      notify.showSnackbar(err.message, "error");
+    }
   }
 
   render() {
@@ -144,7 +147,7 @@ class App extends Component {
               render={props => (
                 <HandInput
                   placeholder="Wprowadź zdanie"
-                  onCalculate={(data, text) => this.displayData(data, text)}
+                  onCalculate={(letters, text) => this.onHandInput(letters, text)}
                 />
               )}
             />
@@ -167,14 +170,15 @@ class App extends Component {
               <h4 className="app-expandPanel-header">Znaki</h4>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
-              <ResultsScreen data={this.state.results} />
+              <ResultsScreen data={this.state.letters} />
             </ExpansionPanelDetails>
           </ExpansionPanel>
           <ExpansionPanel>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
               <h4 className="app-expandPanel-header">
-                Entropia, średnia długość kodu i redundancja
+                Entropia, średnia długość kodu, redundancja
               </h4>
+
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
               <BottomResults
@@ -184,9 +188,29 @@ class App extends Component {
                 className="app-bottomResults"
               />
             </ExpansionPanelDetails>
+
+          </ExpansionPanel>
+          <ExpansionPanel>
+            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+              <h4 className="app-expandPanel-header">
+                Zakodowany / odkodowany ciąg
+              </h4>
+
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails className="app-huffman-container">
+              <section className="app-huffman-section">
+                <h4 className="app-huffman-header">Zakodowany:</h4>
+                <p className="app-huffman-value">{this.state.huffmanEncodedText}</p>
+              </section>
+              <section className="app-huffman-section">
+                <h4 className="app-huffman-header">Odkodowany:</h4>
+                <p className="app-huffman-value">{this.state.huffmanDecodedText}</p>
+              </section>
+
+            </ExpansionPanelDetails>
           </ExpansionPanel>
         </main>
-      </Router>
+      </Router >
     );
   }
 }

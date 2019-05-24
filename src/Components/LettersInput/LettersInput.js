@@ -40,8 +40,9 @@ class LetterInput extends Component {
 
     this.state = {
       rows: [
-        { id: 1, letter: "a", prob: 0.5 },
-        { id: 2, letter: "b", prob: 0.5 }
+        { id: 1, letter: "a", prob: 0.8 },
+        { id: 2, letter: "b", prob: 0.02 },
+        { id: 3, letter: "c", prob: 0.18 }
       ],
       encoded: null,
       rowsAsString: null,
@@ -97,12 +98,17 @@ class LetterInput extends Component {
     if (this.getSumOfRowProbability() != 1)
       return notify.showSnackbar("Prawdopodobieństwo nie sumuje się do 1");
 
-    let sentence = calc.generateStringWithGivenProb(this.state.rows);
-    let tree = huffman.getTreeFromSentence(sentence);
-    let letters = huffman.getLettersFromTree(tree);
+    try {
 
-    //Invoke callback to parent
-    this.props.onCalculate(letters, sentence);
+      let sentence = calc.generateStringWithGivenProb(this.state.rows);
+      let tree = huffman.getTreeFromSentence(sentence);
+      let letters = huffman.getLettersFromTree(tree);
+      this.props.onCalculate(letters, sentence);
+
+    } catch (err) {
+      notify.showSnackbar(err.message, "error")
+    }
+
   }
 
   handleExistingLetterChange(e, row) {
@@ -159,7 +165,6 @@ class LetterInput extends Component {
         return output + ` ${row.letter}: ${row.prob} | `
       }, "")
 
-      console.log(rowsAsString);
       this.setState({
         encoded: encoded,
         decoded: decoded,

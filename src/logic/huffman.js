@@ -40,12 +40,24 @@ export function getLettersFromTree(tree) {
 }
 
 export function getTreeFromSentence(sentence) {
+    if (!sentence || sentence.length < 1)
+        throw new Error("Zdanie jest puste")
+
     var letters = calc.calculateLettersProbAndFreq(sentence);
     return getTreeFromLetters(letters);
 }
 
 export function getTreeFromLetters(letters) {
     let copyLetters = _.cloneDeep(letters);
+
+    if (!copyLetters || copyLetters.length == 0)
+        throw new Error("Tablica znaków jest pusta")
+
+    if (copyLetters.filter(x => !x.prob || !x.dyst).length != 0) {
+        //throw new Error("Część symboli nie mają obliczonego prawdopodobieństwa i dystrybuanty");
+        copyLetters = calc.calculateLettersProb(copyLetters);
+        copyLetters = calc.calculateLettersDystribution(copyLetters);
+    }
 
     if (copyLetters.length == 1) {
         copyLetters[0].code = "0";
@@ -82,45 +94,56 @@ export function getTreeFromLetters(letters) {
 }
 
 export function decode(encoding, tree) {
+
+    if (!encoding || !tree)
+        throw new Error("Brak właściwych argumentów")
+
     let output = "";
     let copyTree = _.cloneDeep(tree);
 
     let splited = encoding.toString().split("");
 
     toSingleRoot(copyTree);
-    console.log(copyTree);
     let currentNode = copyTree[0];
+    console.log(`Starting root`, currentNode);
+
+    let goToRoot = () => {
+        output += currentNode.letter;
+        console.log(output);
+        currentNode = copyTree[0];
+    }
+
     for (let bit of splited) {
         if (bit == "1") {
-            if (!currentNode.combines) {
-                output += currentNode.letter;
-                currentNode = copyTree[0];
+            console.log("Going for 1");
+            currentNode = currentNode.combines[1];
+            if (!currentNode.combines || currentNode.combines.length == 0) {
+                goToRoot();
             }
-            else
-                currentNode = currentNode.combines[1];
         }
-
-        if (bit == "0") {
-            if (!currentNode.combines) {
-                output += currentNode.letter;
-                currentNode = copyTree[0];
+        else if (bit == "0") {
+            console.log("Going for 0");
+            currentNode = currentNode.combines[0];
+            if (!currentNode.combines || currentNode.combines.length == 0) {
+                goToRoot();
             }
-            else
-                currentNode = currentNode.combines[0];
         }
-        console.log(bit, currentNode);
+        console.log(`Bit: ${bit} Node: ${currentNode.letter}`);
     }
     console.log(output);
 
     return output;
 }
-export function encodeText(text, letters) {
-    let output = "";
-    let copyLetters = _.cloneDeep(letters);
+export function encode(text, letters) {
 
+    if (!text || text.length < 1 || !letters || letters.length < 1)
+        throw new Error("Brak wymaganych argumentów")
+
+    let copyLetters = _.cloneDeep(letters);
     if (copyLetters.filter(x => !x.code) != 0)
         throw new Error("Część znaków nie ma przypisanego kodu huffmana")
 
+    let output = "";
     let splited = text.split("");
 
     for (let sign of splited) {

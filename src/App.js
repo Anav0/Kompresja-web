@@ -176,8 +176,9 @@ class App extends Component {
           <ExpansionPanel>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
               <h4 className="app-expandPanel-header">
-                Entropia, średnia długość kodu i redundancja
+                Entropia, średnia długość kodu, redundancja
               </h4>
+
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
               <BottomResults

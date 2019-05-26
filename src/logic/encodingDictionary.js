@@ -1,13 +1,15 @@
 import { calculateLetters } from "./calc";
 
 export default class EncodingDictionary {
-    constructor(source = null, dictionarySize = 254) {
+    constructor(source, dictionarySize = 254) {
         this.dictionarySize = dictionarySize;
-        if (source) {
-            this.source = source;
-            this.dictionary = this.createDictionary(source, dictionarySize);
-        }
+        this.source = source;
+        this.dictionary = createDictionary(source, dictionarySize);
     }
+
+    // get dictionarySize() { return this.dictionarySize; }
+    // get source() { return this.source; }
+    // get dictionary() { return this.dictionary; }
 
     encode(text) {
         let encoded = "";
@@ -44,54 +46,54 @@ export default class EncodingDictionary {
         }
 
         console.log(encoded);
+        return encoded;
 
     }
 
-    createDictionary(text, dictionarySize = 254) {
-        if (!text || !dictionarySize || dictionarySize == 0)
-            throw new Error("Nieprawidłowy argument funkcji");
+}
 
-        let letters = calculateLetters(text);
-        let dictionary = [...new Set(letters.map(x => x.letter))].sort();
+function getPairs(text) {
 
-        if (dictionary.length > dictionarySize)
-            throw new Error("Ilość unikalnych symboli przekracza rozmiar słownika co uniemożliwia jego utworzenie");
+    if (!text || text.length < 2)
+        throw new Error("Nieprawidłowy argument funkcji")
 
-        if (text.length < 2)
-            return dictionary;
+    let letters = text.split("");
+    let pairs = [];
 
-        let pairs = this.getPairs(text);
+    for (let i = 1; i < letters.length; i++) {
+        let pair = letters[i - 1] + letters[i];
 
-        for (let pair of pairs) {
-            if (dictionary.length < dictionarySize)
-                dictionary.push(pair.letter)
-            else
-                break;
-        }
-
-        this.dictionary = dictionary;
-        this.dictionarySize =
+        let existingPair = pairs.find(x => x.letter == pair);
+        if (!existingPair)
+            pairs.push({ letter: pair, occures: 1 });
+        else
+            existingPair.occures++;
     }
 
-    getPairs(text) {
+    return pairs.sort((a, b) => a.occures < b.occures ? 1 : -1);
+}
 
-        if (!text || text.length < 2)
-            throw new Error("Nieprawidłowy argument funkcji")
+function createDictionary(text, dictionarySize = 254) {
+    if (!text || !dictionarySize || dictionarySize == 0)
+        throw new Error("Nieprawidłowy argument funkcji");
 
-        let letters = text.split("");
-        let pairs = [];
+    let letters = calculateLetters(text);
+    let dictionary = [...new Set(letters.map(x => x.letter))].sort();
 
-        for (let i = 1; i < letters.length; i++) {
-            let pair = letters[i - 1] + letters[i];
+    if (dictionary.length > dictionarySize)
+        throw new Error("Ilość unikalnych symboli przekracza rozmiar słownika co uniemożliwia jego utworzenie");
 
-            let existingPair = pairs.find(x => x.letter == pair);
-            if (!existingPair)
-                pairs.push({ letter: pair, occures: 1 });
-            else
-                existingPair.occures++;
-        }
+    if (text.length < 2)
+        return dictionary;
 
-        return pairs.sort((a, b) => a.occures < b.occures ? 1 : -1);
+    let pairs = getPairs(text);
+
+    for (let pair of pairs) {
+        if (dictionary.length < dictionarySize)
+            dictionary.push(pair.letter)
+        else
+            break;
     }
 
+    return dictionary;
 }

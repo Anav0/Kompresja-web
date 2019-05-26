@@ -43,6 +43,7 @@ class App extends Component {
       huffmanDecodedText: "",
       dictEncoded: "",
       dictionary: null,
+      dictionaryStringRep: "",
     };
   }
 
@@ -112,6 +113,18 @@ class App extends Component {
       let newDictionary = new EncodingDictionary(text);
       let dictEncoded = newDictionary.encode(text);
 
+      let dictionaryRepresentation = newDictionary.dictionary.reduce((output, x, index) => {
+        if (x == " ")
+          x = "spacja"
+        return output + `${x} \t ${index.toString(2)}|`
+      }, "").split("|");
+
+      dictionaryRepresentation = dictionaryRepresentation.filter(x => x != "");
+
+      this.setState(() => ({
+        dictionaryStringRep: dictionaryRepresentation
+      }));
+
       this.displayData(letters, text, huffmanEncoded, huffmanDecoded, dictEncoded, newDictionary)
     }
     catch (err) {
@@ -121,6 +134,13 @@ class App extends Component {
   }
 
   render() {
+    var dictionaryElements = [];
+    if (this.state.dictionaryStringRep)
+      dictionaryElements = this.state.dictionaryStringRep.map((x, index) =>
+        <li key={index}>{x}</li>
+      );
+    console.log(this.state.dictionaryStringRep);
+
     return (
       <Router>
         <main className="App">
@@ -231,8 +251,16 @@ class App extends Component {
                 <p className="app-huffman-value">{this.state.dictEncoded}</p>
               </section>
               <section className="app-huffman-section">
-                <h4 className="app-huffman-header">Odkodowany:</h4>
-                <p className="app-huffman-value">{this.state.dictDecoded}</p>
+                <h4 className="app-huffman-header">Słowo:</h4>
+                <p className="app-huffman-value">{this.state.generatedText}</p>
+              </section>
+              <section className="app-huffman-section">
+                <h4 className="app-huffman-header">Słownik:</h4>
+                <ul className="app-huffman-value">
+                  {
+                    dictionaryElements
+                  }
+                </ul>
               </section>
 
             </ExpansionPanelDetails>

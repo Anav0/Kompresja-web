@@ -99,12 +99,10 @@ class LetterInput extends Component {
       return notify.showSnackbar("Prawdopodobieństwo nie sumuje się do 1");
 
     try {
-
       let sentence = calc.generateStringWithGivenProb(this.state.rows);
       let tree = huffman.getTreeFromSentence(sentence);
       let letters = huffman.getLettersFromTree(tree);
       this.props.onCalculate(letters, sentence);
-
     } catch (err) {
       notify.showSnackbar(err.message, "error")
     }
@@ -145,7 +143,7 @@ class LetterInput extends Component {
 
   downloadRandomWords = () => {
     let stringBasedOnLetters = calc.generateStringWithGivenProb(this.state.rows);
-    let letters = calc.calculateLettersProbAndFreq(stringBasedOnLetters);
+    let letters = calc.calculateLetters(stringBasedOnLetters);
     letters = calc.calculateLettersDystribution(letters);
     let words = calc.generateWordsForGivenModel(letters, 4, 100, "B");
     downloadTextArray(words, "words");
@@ -158,7 +156,7 @@ class LetterInput extends Component {
 
       let foundMarker = marker.findMarker(this.state.rows, textToEncode);
       let decodedMarker = marker.decodeMarker(this.state.rows, foundMarker, textToEncode.length);
-      let encoded = marker.arithmeticBinaryCode(this.state.rows, textToEncode);
+      let encoded = marker.arithmeticEncoding(this.state.rows, textToEncode);
       let decoded = marker.decodeArithmeticEncoding(this.state.rows, encoded, textToEncode.length);
 
       let rowsAsString = this.state.rows.reduce((output, row) => {

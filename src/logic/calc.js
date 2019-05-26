@@ -46,7 +46,7 @@ export function calculateLettersDystribution(letters) {
   return letters;
 }
 
-export function calculateLettersProbAndFreq(sentence, trimSentence = true) {
+export function calculateLetters(sentence, trimSentence = true) {
   if (isEmpty(sentence)) return;
   if (trimSentence) sentence = sentence.trim();
 
@@ -56,7 +56,7 @@ export function calculateLettersProbAndFreq(sentence, trimSentence = true) {
 export function calculateEntropyForString(sentence) {
   if (isEmpty(sentence)) return;
 
-  const letters = calculateLettersProbAndFreq(sentence);
+  const letters = calculateLetters(sentence);
   if (!letters) return;
 
   return calculateEntropyForLetters(letters);

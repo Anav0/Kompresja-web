@@ -34,6 +34,8 @@ function allTextSymbolsInArray(text, array) {
 }
 
 export function findMarker(letters, textToEncode) {
+    console.log(letters, textToEncode);
+
     if (!allTextSymbolsInArray(textToEncode, letters))
         throw new Error("Część symboli z tekstu nie występuje w tablicy znaków")
 
@@ -86,7 +88,7 @@ export function decodeMarker(letters, marker, encodedWordLength) {
     return code;
 }
 
-export function arithmeticBinaryCode(letters, textToEncode) {
+export function arithmeticEncoding(letters, textToEncode) {
     let d = [0];
     let g = [1];
     let Fx = [0];
@@ -95,7 +97,7 @@ export function arithmeticBinaryCode(letters, textToEncode) {
     let dtmp = 0;
     let gtmp = 1;
 
-
+    console.log(letters, textToEncode);
     if (!allTextSymbolsInArray(textToEncode, letters))
         throw new Error("Część symboli z tekstu nie występuje w tablicy znaków")
 
@@ -104,7 +106,7 @@ export function arithmeticBinaryCode(letters, textToEncode) {
     letters.map(letter => Fx.push(letter.dyst))
 
     const symbols = textToEncode.split("");
-    for (let i = 1; i < symbols.length + 1; i++) {
+    for (let i = 1; i < symbols.length; i++) {
         let encoding = letters.findIndex(x => x.letter == symbols[i - 1]) + 1;
 
         dtmp = d[i - 1] + (g[i - 1] - d[i - 1]) * Fx[encoding - 1];
@@ -150,9 +152,22 @@ export function arithmeticBinaryCode(letters, textToEncode) {
         } while (!c);
     }
 
-    // :c
-    binary += "1";
-    return binary;
+    if (c) {
+        let number = Math.round(dtmp * 10) / 10;
+        let bin = number.toString(2);
+        let splited = bin.split(".");
+        console.error(bin, splited);
+
+        if (splited.length > 2)
+            throw new Error("Something went terribly wrong :c")
+
+        if (!splited || splited.length <= 1)
+            binary += bin;
+        else
+            binary += splited[1];
+    }
+
+    return binary.toString(2);
 }
 
 export function improvedArithmeticEncoding(letters, textToEncode) {
@@ -164,6 +179,7 @@ export function improvedArithmeticEncoding(letters, textToEncode) {
     let dtmp = 0;
     let gtmp = 1;
     let G = 0;
+    console.log(letters, textToEncode);
     if (!allTextSymbolsInArray(textToEncode, letters))
         throw new Error("Część symboli tekstu nie występuje w tablicy znaków")
 
@@ -172,7 +188,7 @@ export function improvedArithmeticEncoding(letters, textToEncode) {
     letters.map(letter => Fx.push(letter.dyst))
 
     const symbols = textToEncode.split("");
-    for (let i = 1; i < symbols.length + 1; i++) {
+    for (let i = 1; i < symbols.length; i++) {
         let encoding = letters.findIndex(x => x.letter == symbols[i - 1]) + 1;
 
         dtmp = d[i - 1] + (g[i - 1] - d[i - 1]) * Fx[encoding - 1];
@@ -374,7 +390,7 @@ function printScaled(i, dtmp, gtmp) {
 // var decodedMarker = decodeMarker(letters2, marker, "acba".length);
 // console.log(marker, decodedMarker);
 
-// const binary = arithmeticBinaryCode(calculateLettersDystribution(letters2), "acba");
+// const binary = arithmeticEncoding(calculateLettersDystribution(letters2), "acba");
 
 // console.log(binary);
 // console.log(decodeArithmeticEncoding(letters2, binary, "acba".length));

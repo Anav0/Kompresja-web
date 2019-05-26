@@ -2,10 +2,17 @@ import * as calc from "./calc";
 import _ from "lodash";
 
 export function getLettersFromTree(tree) {
-    let copyTree = _.cloneDeep(tree);
-    let fullLength = tree[0].letter.split("").length + tree[1].letter.split("").length;
+    if (!tree)
+        throw new Error("Argument funkcji nie może być null ani undefined");
 
-    console.log(tree);
+    let copyTree = _.cloneDeep(tree);
+
+    if (copyTree.length < 2) {
+        copyTree[0].code = "1";
+        return copyTree;
+    }
+
+    let fullLength = copyTree[0].letter.split("").length + copyTree[1].letter.split("").length;
 
     //Przypisz słowa kodowe
     while (copyTree.length < fullLength) {
@@ -43,7 +50,7 @@ export function getTreeFromSentence(sentence) {
     if (!sentence || sentence.length < 1)
         throw new Error("Zdanie jest puste")
 
-    var letters = calc.calculateLettersProbAndFreq(sentence);
+    var letters = calc.calculateLetters(sentence);
     return getTreeFromLetters(letters);
 }
 
@@ -100,6 +107,9 @@ export function decode(encoding, tree) {
 
     let output = "";
     let copyTree = _.cloneDeep(tree);
+
+    if (copyTree.length < 2)
+        return copyTree[0].letter;
 
     let splited = encoding.toString().split("");
 

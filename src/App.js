@@ -22,6 +22,7 @@ import * as calc from "./logic/calc";
 import * as huffman from "./logic/huffman";
 import * as notify from "./logic/notify";
 import * as downloader from "./logic/downloader";
+import EncodingDictionary from "./logic/encodingDictionary";
 
 class App extends Component {
   constructor(props) {
@@ -39,7 +40,9 @@ class App extends Component {
       popupVariant: "error",
       generatedText: "",
       huffmanEncodedText: "",
-      huffmanDecodedText: ""
+      huffmanDecodedText: "",
+      dictEncoded: "",
+      dictionary: null,
     };
   }
 
@@ -58,7 +61,7 @@ class App extends Component {
     downloader.download(content, "encoding.huff", "octet/stream");
   }
 
-  displayData = (letters, generatedText, encoded = "", decoded = "") => {
+  displayData = (letters, generatedText, huffmanEncoded = "", huffmanDecoded = "", dictEncoded = "", dictionary = null) => {
     let i = 0;
 
     letters.forEach(x => {
@@ -72,8 +75,10 @@ class App extends Component {
       codeLength: calc.calculateAverageCodeLength(letters),
       entropy: calc.calculateEntropyForLetters(letters),
       generatedText: generatedText,
-      huffmanEncodedText: encoded,
-      huffmanDecodedText: decoded,
+      huffmanEncodedText: huffmanEncoded,
+      huffmanDecodedText: huffmanDecoded,
+      dictEncoded: dictEncoded,
+      dictionary: dictionary
     }));
 
   }
@@ -100,10 +105,14 @@ class App extends Component {
 
   onHandInput = (letters, text) => {
     try {
-      let encoded = huffman.encode(text, _.cloneDeep(letters));
+      let huffmanEncoded = huffman.encode(text, _.cloneDeep(letters));
       let tree = huffman.getTreeFromSentence(text);
-      let decoded = huffman.decode(encoded, tree)
-      this.displayData(letters, text, encoded, decoded)
+      let huffmanDecoded = huffman.decode(huffmanEncoded, tree)
+
+      let newDictionary = new EncodingDictionary(text);
+      let dictEncoded = newDictionary.encode(text);
+
+      this.displayData(letters, text, huffmanEncoded, huffmanDecoded, dictEncoded, newDictionary)
     }
     catch (err) {
       console.log(err);
@@ -176,7 +185,7 @@ class App extends Component {
           <ExpansionPanel>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
               <h4 className="app-expandPanel-header">
-                Entropia, średnia długość kodu, redundancja
+                Entropia, średnia długość kodu i redundancja
               </h4>
 
             </ExpansionPanelSummary>
@@ -193,7 +202,7 @@ class App extends Component {
           <ExpansionPanel>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
               <h4 className="app-expandPanel-header">
-                Zakodowany / odkodowany ciąg
+                Kodowanie Huffmana
               </h4>
 
             </ExpansionPanelSummary>
@@ -205,6 +214,25 @@ class App extends Component {
               <section className="app-huffman-section">
                 <h4 className="app-huffman-header">Odkodowany:</h4>
                 <p className="app-huffman-value">{this.state.huffmanDecodedText}</p>
+              </section>
+
+            </ExpansionPanelDetails>
+          </ExpansionPanel>
+
+          <ExpansionPanel>
+            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+              <h4 className="app-expandPanel-header">
+                Kodowanie słownikowe
+              </h4>
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails className="app-huffman-container">
+              <section className="app-huffman-section">
+                <h4 className="app-huffman-header">Zakodowany:</h4>
+                <p className="app-huffman-value">{this.state.dictEncoded}</p>
+              </section>
+              <section className="app-huffman-section">
+                <h4 className="app-huffman-header">Odkodowany:</h4>
+                <p className="app-huffman-value">{this.state.dictDecoded}</p>
               </section>
 
             </ExpansionPanelDetails>

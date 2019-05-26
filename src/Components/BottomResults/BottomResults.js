@@ -12,7 +12,7 @@ export default class BottomResults extends Component {
           desc="Entropia jest to średnia ilość informacji otrzymanej z każdego znaku"
         />
         <BottomResult
-          value={+this.props.codeLength.toFixed(2)}
+          value={+this.props.averageCodeLength.toFixed(2)}
           title="Średnia długość kodu"
           desc="Średnia długość kodu jest to suma wartości prawdopodobieństwa wystąpienia danego znaku pomnożonego przez ilość bitów potrzebnych do jego zakodowania"
         />

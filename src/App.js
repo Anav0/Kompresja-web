@@ -33,7 +33,7 @@ class App extends Component {
     this.state = {
       letters: [],
       redundancy: 0,
-      codeLength: 0,
+      averageCodeLength: 0,
       entropy: 0,
       isPopupOpen: false,
       popupMessage: "",
@@ -62,32 +62,30 @@ class App extends Component {
     downloader.download(content, "encoding.huff", "octet/stream");
   }
 
-  displayData = (letters, generatedText, huffmanEncoded = "", huffmanDecoded = "", dictEncoded = "", dictionary = null) => {
-    let i = 0;
-
-    letters.forEach(x => {
-      x.id = i;
-      i++;
-    });
-
-    this.setState(() => ({
-      letters: letters,
-      redundancy: calc.calculateRedundancy(letters),
-      codeLength: calc.calculateAverageCodeLength(letters),
-      entropy: calc.calculateEntropyForLetters(letters),
-      generatedText: generatedText,
-      huffmanEncodedText: huffmanEncoded,
-      huffmanDecodedText: huffmanDecoded,
-      dictEncoded: dictEncoded,
-      dictionary: dictionary
-    }));
-
-  }
-
   handleCalculationFromFile = (text) => {
-    let tree = huffman.getTreeFromSentence(text);
-    let letters = huffman.getLettersFromTree(tree);
-    this.displayData(letters, text);
+    try {
+      let tree = huffman.getTreeFromSentence(text);
+      let letters = huffman.getLettersFromTree(tree);
+
+      console.log(text, letters, tree);
+
+      let huffmanEncoded = huffman.encode(text, letters);
+      let huffmanDecoded = huffman.decode(huffmanEncoded, tree);
+      let dictEncoded = this.state.dictionary.encode(text);
+
+      this.setState(() => ({
+        letters: letters,
+        generatedText: text,
+        huffmanEncoded: huffmanEncoded,
+        huffmanDecoded: huffmanDecoded,
+        dictEncoded: dictEncoded
+      }));
+
+    }
+    catch (err) {
+      console.error(err);
+      notify.showSnackbar(err.message);
+    }
   }
 
   showSnackBar = (msg, variant) => {
@@ -102,6 +100,15 @@ class App extends Component {
     this.setState({
       isPopOpen: false
     });
+  }
+
+  onLettersInput = (letters, generatedText) => {
+    this.setState(() => ({
+      letters: letters,
+      entropy: calc.calculateEntropyForLetters(letters),
+      redundancy: calc.calculateRedundancy(letters),
+      averageCodeLength: calc.calculateAverageCodeLength(letters),
+    }))
   }
 
   onHandInput = (letters, text) => {
@@ -121,11 +128,24 @@ class App extends Component {
 
       dictionaryRepresentation = dictionaryRepresentation.filter(x => x != "");
 
-      this.setState(() => ({
-        dictionaryStringRep: dictionaryRepresentation
-      }));
 
-      this.displayData(letters, text, huffmanEncoded, huffmanDecoded, dictEncoded, newDictionary)
+      letters.map((x, index) => {
+        x.id = index;
+        x.key = index;
+      })
+
+      this.setState(() => ({
+        letters: letters,
+        generatedText: text,
+        huffmanEncodedText: huffmanEncoded,
+        huffmanDecodedText: huffmanDecoded,
+        dictEncoded: dictEncoded,
+        dictionaryStringRep: dictionaryRepresentation,
+        dictionary: newDictionary,
+        averageCodeLength: calc.calculateAverageCodeLength(letters),
+        entropy: calc.calculateEntropyForLetters(letters),
+        redundancy: calc.calculateRedundancy(letters),
+      }));
     }
     catch (err) {
       console.log(err);
@@ -152,19 +172,19 @@ class App extends Component {
               vertical: "top"
             }}
             open={this.state.isPopOpen}
-            onClose={() => this.closeSnackBar()}
+            onClose={this.closeSnackBar}
           >
             <MySnackbarContent
               className="letterInput-message"
               variant={this.state.popupVariant}
               message={this.state.popupMessage}
-              onClose={() => this.closeSnackBar()}
+              onClose={this.closeSnackBar}
             />
           </Snackbar>
 
           <NavBar
-            onFileUploaded={text => this.handleCalculationFromFile(text)}
-            onDownloadFile={() => this.downloadGeneratedString("Jacek placek")}
+            onFileUploaded={this.handleCalculationFromFile}
+            onDownloadFile={this.downloadGeneratedString}
             className="app-nav"
           />
           <LinearProgress hidden={!this.state.isLoading} color="secondary" />
@@ -176,7 +196,7 @@ class App extends Component {
               render={props => (
                 <HandInput
                   placeholder="Wprowadź zdanie"
-                  onCalculate={(letters, text) => this.onHandInput(letters, text)}
+                  onCalculate={this.onHandInput}
                 />
               )}
             />
@@ -184,9 +204,7 @@ class App extends Component {
               path="/letters/"
               render={props => (
                 <LettersInput
-                  onCalculate={(data, generatedText) =>
-                    this.displayData(data, generatedText)
-                  }
+                  onCalculate={this.onLettersInput}
                   data={this.state.lettersInput}
                 />
               )}
@@ -207,24 +225,21 @@ class App extends Component {
               <h4 className="app-expandPanel-header">
                 Entropia, średnia długość kodu i redundancja
               </h4>
-
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
               <BottomResults
                 entropy={this.state.entropy}
-                codeLength={this.state.codeLength}
+                averageCodeLength={this.state.averageCodeLength}
                 redundancy={this.state.redundancy}
                 className="app-bottomResults"
               />
             </ExpansionPanelDetails>
-
           </ExpansionPanel>
           <ExpansionPanel>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
               <h4 className="app-expandPanel-header">
                 Kodowanie Huffmana
               </h4>
-
             </ExpansionPanelSummary>
             <ExpansionPanelDetails className="app-huffman-container">
               <section className="app-huffman-section">
@@ -235,10 +250,8 @@ class App extends Component {
                 <h4 className="app-huffman-header">Odkodowany:</h4>
                 <p className="app-huffman-value">{this.state.huffmanDecodedText}</p>
               </section>
-
             </ExpansionPanelDetails>
           </ExpansionPanel>
-
           <ExpansionPanel>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
               <h4 className="app-expandPanel-header">
@@ -257,12 +270,9 @@ class App extends Component {
               <section className="app-huffman-section">
                 <h4 className="app-huffman-header">Słownik:</h4>
                 <ul className="app-huffman-value">
-                  {
-                    dictionaryElements
-                  }
+                  {dictionaryElements}
                 </ul>
               </section>
-
             </ExpansionPanelDetails>
           </ExpansionPanel>
         </main>

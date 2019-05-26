@@ -46,7 +46,7 @@ export function calculateLettersDystribution(letters) {
   return letters;
 }
 
-export function calculateLetters(sentence, trimSentence = true) {
+export function calculateLetters(sentence, trimSentence = false) {
   if (isEmpty(sentence)) return;
   if (trimSentence) sentence = sentence.trim();
 

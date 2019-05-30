@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import "./LettersInput.css";
 import * as calc from "./../../logic/calc";
-import * as notify from "./../../logic/notify";
 import { downloadTextArray } from "../../logic/downloader";
 import * as huffman from "../../logic/huffman";
 import * as marker from "../../logic/marker";
@@ -20,12 +19,13 @@ import {
   InputBase,
   withStyles
 } from "@material-ui/core";
-
 import {
   Casino,
   InsertDriveFile,
   ScatterPlot
 } from "@material-ui/icons";
+import { connect } from "react-redux";
+import { showSnackbar } from "../../actions"
 
 const styles = theme => ({
   fab: {
@@ -58,15 +58,15 @@ class LetterInput extends Component {
   addNewRow(e) {
     if (e.key !== "Enter") return;
     if (!this.state.newLetter || this.state.newLetter.length > 1)
-      return notify.showSnackbar("Można wprowadzić tylko pojedynczny znak");
+      return this.props.showSnackbar("Można wprowadzić tylko pojedynczny znak");
 
     if (this.state.newProb <= 0)
-      return notify.showSnackbar(
+      return this.props.showSnackbar(
         "Prawdopodobieństwo nowego elementu nie może być mniejsze || równe 0"
       );
 
     if (this.getSumOfRowProbability() > 1)
-      return notify.showSnackbar(
+      return this.props.showSnackbar(
         "Prawdopodobieństwo nie może być większe niż 1"
       );
 
@@ -96,7 +96,7 @@ class LetterInput extends Component {
   generateTextAndHuffmanCode() {
 
     if (this.getSumOfRowProbability() != 1)
-      return notify.showSnackbar("Prawdopodobieństwo nie sumuje się do 1");
+      return this.props.showSnackbar("Prawdopodobieństwo nie sumuje się do 1");
 
     try {
       let sentence = calc.generateStringWithGivenProb(this.state.rows);
@@ -104,14 +104,14 @@ class LetterInput extends Component {
       let letters = huffman.getLettersFromTree(tree);
       this.props.onCalculate(letters, sentence);
     } catch (err) {
-      notify.showSnackbar(err.message, "error")
+      this.props.showSnackbar(err.message, "error")
     }
 
   }
 
   handleExistingLetterChange(e, row) {
     if (e.target.value.length != 1)
-      return notify.showSnackbar("Wpisz pojedynczy znak");
+      return this.props.showSnackbar("Wpisz pojedynczy znak", "error");
 
     let newRows = this.state.rows;
     let rowToChange = newRows.find(x => {
@@ -127,7 +127,7 @@ class LetterInput extends Component {
     let newRows = this.state.rows;
 
     if (this.getSumOfRowProbability() > 1)
-      notify.showSnackbar(
+      return this.props.showSnackbar(
         "Prawdopodobieństwo nie może być większe niż 1",
         "warning"
       );
@@ -152,7 +152,7 @@ class LetterInput extends Component {
   encodeArithmetically = (textToEncode) => {
     try {
       if (this.getSumOfRowProbability() != 1)
-        return notify.showSnackbar("Prawdopodobieństwa nie sumują się do jedynki", "error");
+        return this.props.showSnackbar("Prawdopodobieństwa nie sumują się do jedynki", "error");
 
       let foundMarker = marker.findMarker(this.state.rows, textToEncode);
       let decodedMarker = marker.decodeMarker(this.state.rows, foundMarker, textToEncode.length);
@@ -174,7 +174,7 @@ class LetterInput extends Component {
       })
     }
     catch (err) {
-      notify.showSnackbar(err.message, "error")
+      this.props.showSnackbar(err.message, "error")
       this.setState({
         isAlghoritmicResultsModalVisible: false,
       })
@@ -274,5 +274,10 @@ class LetterInput extends Component {
     );
   }
 }
-export default withStyles(styles)(LetterInput);
+const mapDispatchToProps = dispatch => ({
+  showSnackbar: (message, variant = "error", duration = 2000) => showSnackbar(message, variant, duration)(dispatch)
+
+})
+
+export default connect(null, mapDispatchToProps)(withStyles(styles)(LetterInput));
 

@@ -3,11 +3,12 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import "./HandInput.css";
 import * as calc from "../../logic/calc";
-import * as notify from "../../logic/notify";
 import * as huffman from "../../logic/huffman";
 import Paper from "@material-ui/core/Paper";
 import InputBase from "@material-ui/core/InputBase";
 import _ from "lodash";
+import { showSnackbar } from "../../actions"
+import { connect } from "react-redux";
 
 const styles = {
   root: {
@@ -26,6 +27,7 @@ class HandInput extends React.Component {
       inputValue: ""
     };
   }
+
   handleChange = (e) => {
     e.preventDefault();
     this.setState({ inputValue: e.target.value });
@@ -34,20 +36,19 @@ class HandInput extends React.Component {
     if (e.key !== "Enter") return;
     if (calc.isEmpty(this.state.inputValue)) return;
 
-    try{
+    try {
 
-        let tree = huffman.getTreeFromSentence(
-          this.state.inputValue
-        );
+      let tree = huffman.getTreeFromSentence(
+        this.state.inputValue
+      );
 
-        let letters = huffman.getLettersFromTree(tree);
+      let letters = huffman.getLettersFromTree(tree);
 
-        this.props.onCalculate(letters, this.state.inputValue);
+      this.props.onCalculate(letters, this.state.inputValue);
     }
-    catch(err)
-    {
+    catch (err) {
       console.error(err);
-      notify.showSnackbar(err.message);
+      this.props.showSnackbar(err.message, "error");
     }
     //Invoke callback to parent
   }
@@ -76,4 +77,9 @@ HandInput.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(HandInput);
+const mapDispatchToProps = dispatch => ({
+  showSnackbar: (message, variant = "error", duration = 2000) => showSnackbar(message, variant, duration)(dispatch)
+
+})
+
+export default connect(null, mapDispatchToProps)(withStyles(styles)(HandInput));

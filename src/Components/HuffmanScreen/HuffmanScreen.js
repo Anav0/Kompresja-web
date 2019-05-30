@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import "./HuffmanScreen.css";
-import * as notify from "./../../logic/notify";
-import * as calc from "./../../logic/calc";
 import { readFileContent } from "./../../logic";
+import { connect } from "react-redux";
+import { showSnackbar } from "../../actions"
 
-export default class HuffmanScreen extends Component {
+class HuffmanScreen extends Component {
   constructor(props) {
     super(props);
 
@@ -16,7 +16,7 @@ export default class HuffmanScreen extends Component {
   compressFiles(files) {
 
     if (!files || files.length < 1)
-      notify.showSnackbar(
+      this.props.showSnackbar(
         "Żaden plik nie został wgrany do skompresowania",
         "error"
       );
@@ -26,17 +26,17 @@ export default class HuffmanScreen extends Component {
         console.log(content);
       }).catch(err => {
         console.log(err);
-        notify.showSnackbar(err.message);
+        this.props.showSnackbar(err.message);
       })
     } catch (err) {
       console.log(err);
-      notify.showSnackbar(err.message);
+      this.props.showSnackbar(err.message);
     }
   }
 
   decompressFiles(files) {
     if (files.length < 1)
-      notify.showSnackbar(
+      this.props.showSnackbar(
         "Żaden plik nie został wygrany do skompresowania",
         "error"
       );
@@ -62,3 +62,9 @@ export default class HuffmanScreen extends Component {
     );
   }
 }
+const mapDispatchToProps = dispatch => ({
+  showSnackbar: (message, variant = "error", duration = 2000) => showSnackbar(message, variant, duration)(dispatch)
+
+})
+
+export default connect(null, mapDispatchToProps)(HuffmanScreen);

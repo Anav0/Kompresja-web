@@ -20,25 +20,20 @@ import _ from "lodash";
 import "./App.css";
 import * as calc from "./logic/calc";
 import * as huffman from "./logic/huffman";
-import * as notify from "./logic/notify";
 import * as downloader from "./logic/downloader";
 import EncodingDictionary from "./logic/encodingDictionary";
 import { connect } from "react-redux";
+import { hideSnackbar, showSnackbar } from "./actions"
 
 class App extends Component {
   constructor(props) {
     super(props);
-
-    notify.snackBarCallbacks.push(this.showSnackBar);
 
     this.state = {
       letters: [],
       redundancy: 0,
       averageCodeLength: 0,
       entropy: 0,
-      isPopupOpen: false,
-      popupMessage: "",
-      popupVariant: "error",
       generatedText: "",
       huffmanEncodedText: "",
       huffmanDecodedText: "",
@@ -47,17 +42,10 @@ class App extends Component {
       dictionaryStringRep: "",
     };
   }
-
-  componentDidMount() {
-    console.log(this.props)
-  }
-
   downloadGeneratedString = () => {
     if (calc.isEmpty(this.state.generatedText) || this.state.letters.length < 1)
-      return notify.showSnackbar(
-        "Nie można pobrać, bo żaden tekst nie został wygenerowany",
-        "warning"
-      );
+      return this.props.showSnackbar("Nie można pobrać, bo żaden tekst nie został wygenerowany",
+        "warning")
 
     downloader.download(this.state.generatedText, "calc.txt", "text/plain");
     let content = this.state.letters.reduce((code, letter) => {
@@ -89,7 +77,7 @@ class App extends Component {
     }
     catch (err) {
       console.error(err);
-      notify.showSnackbar(err.message);
+      return this.props.showSnackbar(err.message, "error")
     }
   }
 
@@ -98,12 +86,6 @@ class App extends Component {
       isPopOpen: true,
       popupMessage: msg,
       popupVariant: variant
-    });
-  }
-
-  closeSnackBar = () => {
-    this.setState({
-      isPopOpen: false
     });
   }
 
@@ -133,7 +115,6 @@ class App extends Component {
 
       dictionaryRepresentation = dictionaryRepresentation.filter(x => x != "");
 
-
       letters.map((x, index) => {
         x.id = index;
         x.key = index;
@@ -154,35 +135,37 @@ class App extends Component {
     }
     catch (err) {
       console.log(err);
-      notify.showSnackbar(err.message, "error");
+      return this.props.showSnackbar(err.message, "error")
     }
   }
-
+  closeSnackBar = () => {
+    console.log(this.props);
+    this.props.hideSnackbar();
+  }
   render() {
     var dictionaryElements = [];
     if (this.state.dictionaryStringRep)
       dictionaryElements = this.state.dictionaryStringRep.map((x, index) =>
         <li key={index}>{x}</li>
       );
-    console.log(this.state.dictionaryStringRep);
 
     return (
       <Router>
         <main className="App">
           <Snackbar
             className="app-snackBar"
-            autoHideDuration={3000}
+            autoHideDuration={this.props.snackBarOptions.duration}
             anchorOrigin={{
               horizontal: "center",
               vertical: "top"
             }}
-            open={this.state.isPopOpen}
+            open={this.props.snackBarOptions.isVisible}
             onClose={this.closeSnackBar}
           >
             <MySnackbarContent
               className="letterInput-message"
-              variant={this.state.popupVariant}
-              message={this.state.popupMessage}
+              variant={this.props.snackBarOptions.variant}
+              message={this.props.snackBarOptions.message}
               onClose={this.closeSnackBar}
             />
           </Snackbar>
@@ -287,7 +270,14 @@ class App extends Component {
 }
 
 const mapStateToProps = state => ({
-  isLoading: state.loading.isLoading
+  isLoading: state.loading.isLoading,
+  snackBarOptions: state.snackbar,
 });
 
-export default connect(mapStateToProps)(App);
+const mapDispatchToProps = dispatch => ({
+  hideSnackbar: () => hideSnackbar(dispatch),
+  showSnackbar: (message, variant = "error", duration = 2000) => showSnackbar(message, variant, duration)(dispatch)
+
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

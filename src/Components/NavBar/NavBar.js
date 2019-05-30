@@ -14,9 +14,9 @@ import CloudDownload from "@material-ui/icons/CloudDownload";
 import Folder from "@material-ui/icons/Folder";
 import Casino from "@material-ui/icons/Casino";
 import Lock from "@material-ui/icons/Lock";
-
+import { connect } from "react-redux";
+import { showSnackbar } from "../../actions"
 import "./NavBar.css";
-import * as notify from "./../../logic/notify";
 import { Link } from "react-router-dom";
 
 const styles = {
@@ -51,7 +51,7 @@ class MenuAppBar extends React.Component {
   }
   loadTextFromFile(file, type) {
     if (type !== "text/plain")
-      return notify.showSnackbar("Niedozowlone rozszerzenie pliku", "error");
+      return this.props.showSnackbar("Niedozowlone rozszerzenie pliku", "error");
 
     let fileReader = new FileReader();
     fileReader.onloadend = e => {
@@ -169,4 +169,9 @@ MenuAppBar.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(MenuAppBar);
+const mapDispatchToProps = dispatch => ({
+  showSnackbar: (message, variant = "error", duration = 2000) => showSnackbar(message, variant, duration)(dispatch)
+
+})
+
+export default connect(null, mapDispatchToProps)(withStyles(styles)(MenuAppBar));

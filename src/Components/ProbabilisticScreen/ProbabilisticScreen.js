@@ -7,9 +7,11 @@ import {
   withStyles,
 } from "@material-ui/core";
 import InsertDriveFile from "@material-ui/icons/InsertDriveFile";
-import * as notify from "./../../logic/notify";
 import * as calc from "./../../logic/calc";
 import * as downloader from "./../../logic/downloader";
+import { connect } from "react-redux";
+import { showSnackbar } from "../../actions"
+
 const styles = theme => ({
   fab: {
     margin: theme.spacing.unit,
@@ -29,7 +31,7 @@ class ProbabilisticScreen extends Component {
 
   loadProbModelFromFile(file, type) {
     if (type != "text/plain")
-      return notify.showSnackbar("Niedozowlone rozszerzenie pliku", "error");
+      return this.props.showSnackbar("Niedozowlone rozszerzenie pliku", "error");
 
     let fileReader = new FileReader();
     fileReader.onloadend = e => {
@@ -44,7 +46,7 @@ class ProbabilisticScreen extends Component {
   }
   isModelLoaded = () => {
     if (this.state.loadedWords.length < 1) {
-      notify.showSnackbar(
+      this.props.showSnackbar(
         "Zanim wygenerujesz słowa, wczytaj plik zawierający czteroliterowe słowa.",
         "error"
       );
@@ -148,4 +150,10 @@ class ProbabilisticScreen extends Component {
     );
   }
 }
-export default withStyles(styles)(ProbabilisticScreen);
+
+const mapDispatchToProps = dispatch => ({
+  showSnackbar: (message, variant = "error", duration = 2000) => showSnackbar(message, variant, duration)(dispatch)
+
+})
+
+export default connect(null, mapDispatchToProps)(withStyles(styles)(ProbabilisticScreen));

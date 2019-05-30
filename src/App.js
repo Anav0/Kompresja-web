@@ -12,7 +12,7 @@ import {
   LinearProgress,
   ExpansionPanel,
   ExpansionPanelSummary,
-  ExpansionPanelDetails
+  ExpansionPanelDetails,
 } from "@material-ui/core/"
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import HuffmanScreen from "./Components/HuffmanScreen/HuffmanScreen";
@@ -23,6 +23,7 @@ import * as huffman from "./logic/huffman";
 import * as notify from "./logic/notify";
 import * as downloader from "./logic/downloader";
 import EncodingDictionary from "./logic/encodingDictionary";
+import { connect } from "react-redux";
 
 class App extends Component {
   constructor(props) {
@@ -45,6 +46,10 @@ class App extends Component {
       dictionary: null,
       dictionaryStringRep: "",
     };
+  }
+
+  componentDidMount() {
+    console.log(this.props)
   }
 
   downloadGeneratedString = () => {
@@ -187,7 +192,7 @@ class App extends Component {
             onDownloadFile={this.downloadGeneratedString}
             className="app-nav"
           />
-          <LinearProgress hidden={!this.state.isLoading} color="secondary" />
+          <LinearProgress hidden={!this.props.isLoading} color="secondary" />
           {/* <div className="app-input">{input}</div> */}
           <section className="app-input">
             <Route path="/" exact component={ProbabilisticScreen} />
@@ -281,4 +286,8 @@ class App extends Component {
   }
 }
 
-export default App;
+const mapStateToProps = state => ({
+  isLoading: state.loading.isLoading
+});
+
+export default connect(mapStateToProps)(App);

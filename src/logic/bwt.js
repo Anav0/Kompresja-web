@@ -1,4 +1,4 @@
-const text = "banana";
+const text = "ceete";
 
 function cycleShift(text) {
   let letters = [...text];

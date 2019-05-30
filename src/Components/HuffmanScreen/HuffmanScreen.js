@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import "./HuffmanScreen.css";
 import * as notify from "./../../logic/notify";
 import * as calc from "./../../logic/calc";
-// import * as compressor from "../../logic/Huffman/compressor"
+import { readFileContent } from "./../../logic";
 
 export default class HuffmanScreen extends Component {
   constructor(props) {
@@ -14,13 +14,23 @@ export default class HuffmanScreen extends Component {
     };
   }
   compressFiles(files) {
-    if (files.length < 1)
+
+    if (!files || files.length < 1)
       notify.showSnackbar(
         "Żaden plik nie został wgrany do skompresowania",
         "error"
       );
 
-    for (let file of files) {
+    try {
+      readFileContent(files[0]).then((content) => {
+        console.log(content);
+      }).catch(err => {
+        console.log(err);
+        notify.showSnackbar(err.message);
+      })
+    } catch (err) {
+      console.log(err);
+      notify.showSnackbar(err.message);
     }
   }
 

@@ -20,7 +20,6 @@ import _ from "lodash";
 import "./App.css";
 import * as calc from "./logic/calc";
 import * as huffman from "./logic/huffman";
-import * as downloader from "./logic/downloader";
 import EncodingDictionary from "./logic/encodingDictionary";
 import { connect } from "react-redux";
 import { hideSnackbar, showSnackbar } from "./actions";
@@ -35,28 +34,14 @@ class App extends Component {
       averageCodeLength: 0,
       entropy: 0,
       generatedText: "",
-      huffmanEncodedText: "",
-      huffmanDecodedText: "",
+      huffmanEncoded: "",
+      huffmanDecoded: "",
       dictEncoded: "",
       dictDecoded: "",
       dictionary: null,
       dictionaryStringRep: ""
     };
   }
-  downloadGeneratedString = () => {
-    if (calc.isEmpty(this.state.generatedText) || this.state.letters.length < 1)
-      return this.props.showSnackbar(
-        "Nie można pobrać, bo żaden tekst nie został wygenerowany",
-        "warning"
-      );
-
-    downloader.download(this.state.generatedText, "calc.txt", "text/plain");
-    let content = this.state.letters.reduce((code, letter) => {
-      return code + letter.code;
-    }, "");
-
-    downloader.download(content, "encoding.huff", "octet/stream");
-  };
 
   removeLastNewLineChar(text) {
     let splited = text.split("");
@@ -65,6 +50,14 @@ class App extends Component {
     }
     return text;
   }
+  onFileDecompressed = fileContent => {
+    try {
+      this.handleCalculationFromFile(fileContent);
+    } catch (err) {
+      console.error(err);
+      this.props.showSnackbar(err.message, "error");
+    }
+  };
   handleCalculationFromFile = text => {
     try {
       text = this.removeLastNewLineChar(text);
@@ -74,13 +67,17 @@ class App extends Component {
       let huffmanEncoded = huffman.encode(text, letters);
       let huffmanDecoded = huffman.decode(huffmanEncoded, tree);
 
+      let redundancy = calc.calculateRedundancy(letters);
+      let averageCodeLength = calc.calculateAverageCodeLength(letters);
+      let entropy = calc.calculateEntropyForLetters(letters);
+
       let dictEncoded = "";
       let dictDecoded = "";
       if (this.state.dictionary) {
         dictEncoded = this.state.dictionary.encode(text);
         dictDecoded = this.state.dictionary.decode(dictEncoded);
       } else {
-        this.props.showSnackBar(
+        this.props.showSnackbar(
           "Nie można zakodować przy użyciu słownika, gdyż słownik nie istnieje",
           "warning"
         );
@@ -89,6 +86,9 @@ class App extends Component {
       this.setState(() => ({
         letters: letters,
         generatedText: text,
+        averageCodeLength: averageCodeLength,
+        entropy: entropy,
+        redundancy: redundancy,
         huffmanEncoded: huffmanEncoded,
         huffmanDecoded: huffmanDecoded,
         dictEncoded: dictEncoded,
@@ -100,7 +100,7 @@ class App extends Component {
     }
   };
 
-  showSnackBar = (msg, variant) => {
+  showSnackbar = (msg, variant) => {
     this.setState({
       isPopOpen: true,
       popupMessage: msg,
@@ -135,8 +135,8 @@ class App extends Component {
       this.setState(() => ({
         letters: letters,
         generatedText: text,
-        huffmanEncodedText: huffmanEncoded,
-        huffmanDecodedText: huffmanDecoded,
+        huffmanEncoded: huffmanEncoded,
+        huffmanDecoded: huffmanDecoded,
         dictEncoded: dictEncoded,
         dictDecoded: dictDecoded,
         dictionaryStringRep: newDictionary.getReadableDictionary(),
@@ -151,7 +151,6 @@ class App extends Component {
     }
   };
   closeSnackBar = () => {
-    console.log(this.props);
     this.props.hideSnackbar();
   };
   render() {
@@ -184,7 +183,6 @@ class App extends Component {
 
           <NavBar
             onFileUploaded={this.handleCalculationFromFile}
-            onDownloadFile={this.downloadGeneratedString}
             className="app-nav"
           />
           <LinearProgress hidden={!this.props.isLoading} color="secondary" />
@@ -210,7 +208,16 @@ class App extends Component {
               )}
             />
             <Route path="/generate/" component={ProbabilisticScreen} />
-            <Route path="/huffman/" component={HuffmanScreen} />
+            <Route
+              path="/huffman/"
+              render={props => (
+                <HuffmanScreen
+                  onFileDecompressed={fileContent =>
+                    this.onFileDecompressed(fileContent)
+                  }
+                />
+              )}
+            />
           </section>
           <ExpansionPanel>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
@@ -242,15 +249,11 @@ class App extends Component {
             <ExpansionPanelDetails className="app-huffman-container">
               <section className="app-huffman-section">
                 <h4 className="app-huffman-header">Zakodowany:</h4>
-                <p className="app-huffman-value">
-                  {this.state.huffmanEncodedText}
-                </p>
+                <p className="app-huffman-value">{this.state.huffmanEncoded}</p>
               </section>
               <section className="app-huffman-section">
                 <h4 className="app-huffman-header">Odkodowany:</h4>
-                <p className="app-huffman-value">
-                  {this.state.huffmanDecodedText}
-                </p>
+                <p className="app-huffman-value">{this.state.huffmanDecoded}</p>
               </section>
             </ExpansionPanelDetails>
           </ExpansionPanel>

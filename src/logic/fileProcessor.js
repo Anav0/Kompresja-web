@@ -1,30 +1,34 @@
-import { showLoading, hideLoading, showSnackbar } from "../actions"
+import { showLoading, hideLoading } from "../actions";
 import store from "../store";
+import { ArrayBufferToString } from "./arrayBuffer";
 
 export function readFileContent(file) {
+  return new Promise((resolve, reject) => {
+    store.dispatch(showLoading);
+    if (!file) reject(new Error("file cannot be null"));
 
-    return new Promise((resolve, reject) => {
+    let reader = new FileReader();
 
-        store.dispatch(showLoading);
-        if (!file)
-            reject(new Error("file cannot be null"));
+    reader.onload = e => {
+      store.dispatch(hideLoading);
+      resolve(ArrayBufferToString(e.target.result));
+    };
 
-        let reader = new FileReader();
+    try {
+      reader.readAsArrayBuffer(file);
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+export function getFileExtention(file) {
+  if (!file) throw new Error("Argument cannot be null");
 
-        reader.onload = (e) => {
-            setTimeout(() => {
-                store.dispatch(hideLoading);
-                store.dispatch(showSnackbar("Kompresja zakończona","info"))
-                resolve(e.target.result);
-            }, 1000);
-        }
+  return file.name.split(".")[1];
+}
 
-        try {
-            reader.readAsText(file);
-        }
-        catch (err) {
-            reject(err);
-        }
-    });
+export function getFileName(file) {
+  if (!file) throw new Error("Argument cannot be null");
 
+  return file.name.split(".")[0];
 }

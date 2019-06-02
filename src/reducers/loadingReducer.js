@@ -5,7 +5,6 @@ const initialState = {
 }
 
 export default function loading(state = initialState, action) {
-    console.log(state);
 
     switch (action.type) {
         case SHOW_LOADING:

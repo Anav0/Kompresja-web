@@ -1,16 +1,13 @@
-
 export function calculateLettersProb(letters) {
-
   let numberOfLetters = letters.reduce((sum, x) => {
     return sum + x.occures;
-  }, 0)
-  console.log(numberOfLetters)
+  }, 0);
   //Calculate probability
   for (var pair of letters) {
     pair.prob = pair.occures / numberOfLetters;
   }
 
-  return letters.sort((a, b) => (a.letter > b.letter) ? 1 : -1);
+  return letters.sort((a, b) => (a.letter > b.letter ? 1 : -1));
 }
 
 export function calculateLettersFreq(sentence) {
@@ -35,10 +32,10 @@ export function calculateLettersFreq(sentence) {
 
 export function calculateLettersDystribution(letters) {
   if (letters.filter(x => !x.prob) > 0)
-    throw new Error("Symbole nie mają obliczonej częstości")
+    throw new Error("Symbole nie mają obliczonej częstości");
 
   if (letters.length > 1)
-    letters = letters.sort((a, b) => (a.letter > b.letter) ? 1 : -1);
+    letters = letters.sort((a, b) => (a.letter > b.letter ? 1 : -1));
   letters[0].dyst = letters[0].prob;
   for (let i = 1; i < letters.length; i++) {
     letters[i].dyst = letters[i - 1].dyst + +letters[i].prob;
@@ -158,14 +155,15 @@ export function generateProbModelForGivenWords(words) {
 
   for (let letter of model) {
     if (letter.successors && letter.successors.length > 0)
-      letter.successors = calculateLettersDystribution(calculateLettersProb(letter.successors));
+      letter.successors = calculateLettersDystribution(
+        calculateLettersProb(letter.successors)
+      );
   }
 
   return model;
 }
 
 function calculateSuccessors(word, prevModel, context = 1) {
-
   if (!word || word.trim() === "") return prevModel;
   let letters = word.split("");
 
@@ -173,9 +171,6 @@ function calculateSuccessors(word, prevModel, context = 1) {
     default:
     case 1:
       prevModel = getSuccessorsContext1(letters, prevModel);
-      break;
-    case 2:
-      prevModel = getSuccessorsContext2(letters, prevModel);
       break;
   }
 
@@ -239,26 +234,20 @@ function getSuccessorsContext1(letters, prevModel) {
   return prevModel;
 }
 
-function getSuccessorsContext2(letters, prevModel) {
-
-}
-
 export function generateWordsForGivenModel(
   model,
   wordLength = 4,
   numberOfWords = 1000,
-  variant = "B",
+  variant = "B"
 ) {
-
   switch (variant) {
     case "B":
-      return generateWordsFromModelVariantB(numberOfWords, wordLength, model)
+      return generateWordsFromModelVariantB(numberOfWords, wordLength, model);
     case "C":
-      return generateWordsFromModelVariantC(numberOfWords, wordLength, model)
+      return generateWordsFromModelVariantC(numberOfWords, wordLength, model);
     default:
       return [];
   }
-
 }
 
 function generateWordsFromModelVariantB(numberOfWords, wordLength, model) {
@@ -266,7 +255,6 @@ function generateWordsFromModelVariantB(numberOfWords, wordLength, model) {
   let word = "";
 
   for (let j = 0; j < numberOfWords; j++) {
-
     for (let j = 0; j < wordLength; j++) {
       let luck = Math.random();
       let j = 0;
@@ -278,10 +266,16 @@ function generateWordsFromModelVariantB(numberOfWords, wordLength, model) {
     word = "";
   }
   return generatedWords;
-
 }
 
-function generateWordsFromModelVariantC(numberOfWords, wordLength, model) {
+function generateWordsFromModelVariantC(
+  numberOfWords = 100,
+  wordLength = 4,
+  model
+) {
+  if (!model) throw new Error("model argument is null");
+
+  console.log(model);
   let output = "";
   let letterToAdd;
   let generatedWords = [];
@@ -311,12 +305,6 @@ function generateWordsFromModelVariantC(numberOfWords, wordLength, model) {
     output = "";
   }
   return generatedWords;
-}
-
-function generateWordsFromModelVariantD(numberOfWords, wordLength, model) {
-  let output = "";
-  let letterToAdd;
-  let generatedWords = [];
 }
 
 function probGreaterThanOne(letters) {

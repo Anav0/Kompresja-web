@@ -1,23 +1,26 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/core/styles";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
-import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
-import Tooltip from "@material-ui/core/Tooltip";
-import Code from "@material-ui/icons/Code";
-import Create from "@material-ui/icons/Create";
-import TableChart from "@material-ui/icons/TableChart";
-import CloudDownload from "@material-ui/icons/CloudDownload";
-import Folder from "@material-ui/icons/Folder";
-import Casino from "@material-ui/icons/Casino";
-import Lock from "@material-ui/icons/Lock";
+import "./NavBar.css";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Tooltip,
+  IconButton,
+  withStyles
+} from "@material-ui/core";
+import {
+  Code,
+  Create,
+  TableChart,
+  Casino,
+  Folder,
+  Lock
+} from "@material-ui/icons/";
 import { connect } from "react-redux";
 import { showSnackbar } from "../../actions";
-import "./NavBar.css";
 import { Link } from "react-router-dom";
+import { readFileContent, getFileExtention } from "../../logic/fileProcessor";
 
 const styles = {
   root: {},
@@ -31,43 +34,21 @@ const styles = {
 };
 
 class MenuAppBar extends React.Component {
-  state = {
-    auth: true,
-    anchorEl: null
-  };
-  handleChange = event => {
-    this.setState({ auth: event.target.checked });
-  };
-
-  handleMenu = event => {
-    this.setState({ anchorEl: event.currentTarget });
-  };
-
-  handleClose = () => {
-    this.setState({ anchorEl: null });
-  };
-  changeInputMethod(newMethod) {
-    this.props.onInputMethodChanged(newMethod);
-  }
-  loadTextFromFile(file, type) {
-    if (type !== "text/plain")
-      return this.props.showSnackbar(
-        "Niedozowlone rozszerzenie pliku",
-        "error"
-      );
-
-    let fileReader = new FileReader();
-    fileReader.onerror = e => {
-      fileReader.abort();
-      throw new Error("Błąd przy wczytywaniu pliku");
-    };
-    fileReader.onload = e => {
-      this.props.onFileUploaded(fileReader.result);
-    };
-    fileReader.readAsText(file);
-  }
-  downloadGeneratedString() {
-    this.props.onDownloadFile();
+  loadTextFromFile(file) {
+    readFileContent(file)
+      .then(fileContent => {
+        if (getFileExtention(file) == "huff") {
+          fileContent = fileContent
+            .split("\n")
+            .slice(2)
+            .join("\n");
+        }
+        this.props.onFileUploaded(fileContent);
+      })
+      .catch(err => {
+        console.error(err);
+        this.props.showSnackbar(err.message, "error");
+      });
   }
 
   render() {
@@ -113,25 +94,16 @@ class MenuAppBar extends React.Component {
                 <TableChart />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Pobierz wygenerowany tekst">
-              <IconButton
-                className={classes.menuButton}
-                aria-haspopup="true"
-                color="inherit"
-                onClick={() => this.downloadGeneratedString()}
-              >
-                <CloudDownload />
-              </IconButton>
-            </Tooltip>
             <Tooltip title="Wczytaj tekst z pliku">
               <IconButton
                 className={classes.menuButton}
                 aria-haspopup="true"
                 color="inherit"
+                onClick={() =>
+                  document.getElementById("navbar-uploadButton").click()
+                }
               >
-                <label htmlFor="navbar-uploadButton">
-                  <Folder />
-                </label>
+                <Folder />
               </IconButton>
             </Tooltip>
             <input
@@ -139,9 +111,7 @@ class MenuAppBar extends React.Component {
               hidden
               type="file"
               accept="text/plain"
-              onChange={e =>
-                this.loadTextFromFile(e.target.files[0], e.target.files[0].type)
-              }
+              onChange={e => this.loadTextFromFile(e.target.files[0])}
             />
             <Tooltip title="Huffman">
               <IconButton

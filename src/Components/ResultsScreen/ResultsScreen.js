@@ -199,7 +199,36 @@ class EnhancedTable extends React.Component {
   handleChangeRowsPerPage = event => {
     this.setState({ rowsPerPage: event.target.value });
   };
+  displayReadableLetter = letter => {
+    if (!letter) return;
 
+    switch (letter) {
+      case " ":
+        return "Spacja";
+      case "\b":
+        return "Backspace";
+      case "\f":
+        return "Koniec strony";
+      case "\n":
+        return "Nowa linia";
+      case "\r":
+        return "Koniec lini";
+      case "\t":
+        return "Tabulator poziomy";
+      case "\v":
+        return "Tabulator pionowy";
+      case "\0":
+        return "Null";
+      case "'":
+        return "Pojedynczy cudzysłów";
+      case `\"`:
+        return "Podwójny cudzysłów";
+      case "\\":
+        return "Backslash";
+      default:
+        return letter;
+    }
+  };
   render() {
     const { classes, data } = this.props;
     classes.root += " " + this.props.className;
@@ -225,7 +254,7 @@ class EnhancedTable extends React.Component {
                   return (
                     <TableRow hover tabIndex={-1} key={n.id}>
                       <TableCell align="right" component="th" scope="row">
-                        {n.letter}
+                        {this.displayReadableLetter(n.letter)}
                       </TableCell>
                       <TableCell align="right">{n.occures}</TableCell>
                       <TableCell align="right">{+n.prob.toFixed(3)}</TableCell>

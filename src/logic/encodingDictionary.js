@@ -1,4 +1,5 @@
 import { calculateLetters } from "./calc";
+import { addBitsLeft } from "./bits";
 
 export default class EncodingDictionary {
   constructor(source, dictionarySize = 254) {
@@ -24,9 +25,8 @@ export default class EncodingDictionary {
 
       let existingPairIndex = this.dictionary.findIndex(x => x == pair);
       if (existingPairIndex != -1) {
-        let bitsToAdd = addBits(existingPairIndex.toString(2));
+        let bitsToAdd = addBitsLeft(existingPairIndex.toString(2));
         encoded += bitsToAdd;
-        console.log(`Dodano: ${bitsToAdd} dla ${pair}`);
 
         i++; //aby przeskoczyć do następnej pary
       } else {
@@ -37,14 +37,12 @@ export default class EncodingDictionary {
         if (index == -1)
           throw new Error(`Nie znaleziono ${firstLetter} w słowniku`);
 
-        let bitsToAdd = addBits(index);
+        let bitsToAdd = addBitsLeft(index);
 
         encoded += bitsToAdd;
-        console.log(`Dodano: ${bitsToAdd} dla ${firstLetter}`);
       }
     }
 
-    console.log(encoded);
     return encoded;
   }
 
@@ -69,7 +67,7 @@ export default class EncodingDictionary {
 
       if (group.length == groupSize) {
         let letter = this.dictionary.find(
-          (x, index) => addBits(index.toString(2)) == group
+          (x, index) => addBitsLeft(index.toString(2)) == group
         );
 
         if (!letter)
@@ -87,20 +85,12 @@ export default class EncodingDictionary {
     let rep = this.dictionary
       .reduce((output, x, index) => {
         if (x == " ") x = "spacja";
-        return output + `${x} \t ${addBits(index.toString(2))}|`;
+        return output + `${x} \t ${addBitsLeft(index.toString(2))}|`;
       }, "")
       .split("|");
 
     return rep.filter(x => x && x != "");
   }
-}
-
-function addBits(bits, finalSize = 8) {
-  if (!bits || !finalSize) throw new Error("Argument cannot be null");
-
-  while (bits.length < finalSize) bits = "0" + bits;
-
-  return bits;
 }
 
 function getPairs(text) {

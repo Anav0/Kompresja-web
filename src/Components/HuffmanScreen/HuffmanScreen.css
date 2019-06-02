@@ -1,8 +1,9 @@
 .huffmanScreen-containter {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  flex-wrap: wrap;
 }
 .huffmanScreen-section {
   display: flex;
@@ -14,4 +15,10 @@
 .huffmanScreen-headers {
   margin-bottom: 1rem;
   color: var(--second-color);
+}
+.huffmanScreen-decompress-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }

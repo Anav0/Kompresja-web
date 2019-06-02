@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import "./LettersInput.css";
 import * as calc from "./../../logic/calc";
-import { downloadTextArray } from "../../logic/downloader";
+import Downloader from "../../logic/downloader";
 import * as huffman from "../../logic/huffman";
 import * as marker from "../../logic/marker";
 import InputModal from "./inputModal/inputModal";
@@ -19,18 +19,14 @@ import {
   InputBase,
   withStyles
 } from "@material-ui/core";
-import {
-  Casino,
-  InsertDriveFile,
-  ScatterPlot
-} from "@material-ui/icons";
+import { Casino, InsertDriveFile, ScatterPlot } from "@material-ui/icons";
 import { connect } from "react-redux";
-import { showSnackbar } from "../../actions"
+import { showSnackbar } from "../../actions";
 
 const styles = theme => ({
   fab: {
     margin: theme.spacing.unit,
-    fontSize: "1.50rem",
+    fontSize: "1.50rem"
   }
 });
 
@@ -91,10 +87,9 @@ class LetterInput extends Component {
     return this.state.rows.reduce((prev, curr) => {
       return prev + +curr.prob;
     }, 0);
-  }
+  };
 
   generateTextAndHuffmanCode() {
-
     if (this.getSumOfRowProbability() != 1)
       return this.props.showSnackbar("Prawdopodobieństwo nie sumuje się do 1");
 
@@ -104,9 +99,8 @@ class LetterInput extends Component {
       let letters = huffman.getLettersFromTree(tree);
       this.props.onCalculate(letters, sentence);
     } catch (err) {
-      this.props.showSnackbar(err.message, "error")
+      this.props.showSnackbar(err.message, "error");
     }
-
   }
 
   handleExistingLetterChange(e, row) {
@@ -129,7 +123,8 @@ class LetterInput extends Component {
     if (this.getSumOfRowProbability() > 1)
       return this.props.showSnackbar(
         "Prawdopodobieństwo nie może być większe niż 1",
-        "warning"
+        "warning",
+        5000
       );
 
     newRows.find(x => {
@@ -142,26 +137,39 @@ class LetterInput extends Component {
   }
 
   downloadRandomWords = () => {
-    let stringBasedOnLetters = calc.generateStringWithGivenProb(this.state.rows);
+    let stringBasedOnLetters = calc.generateStringWithGivenProb(
+      this.state.rows
+    );
     let letters = calc.calculateLetters(stringBasedOnLetters);
     letters = calc.calculateLettersDystribution(letters);
     let words = calc.generateWordsForGivenModel(letters, 4, 100, "B");
-    downloadTextArray(words, "words");
-  }
+    new Downloader().downloadWords(words, "words");
+  };
 
-  encodeArithmetically = (textToEncode) => {
+  encodeArithmetically = textToEncode => {
     try {
       if (this.getSumOfRowProbability() != 1)
-        return this.props.showSnackbar("Prawdopodobieństwa nie sumują się do jedynki", "error");
+        return this.props.showSnackbar(
+          "Prawdopodobieństwa nie sumują się do jedynki",
+          "error"
+        );
 
       let foundMarker = marker.findMarker(this.state.rows, textToEncode);
-      let decodedMarker = marker.decodeMarker(this.state.rows, foundMarker, textToEncode.length);
+      let decodedMarker = marker.decodeMarker(
+        this.state.rows,
+        foundMarker,
+        textToEncode.length
+      );
       let encoded = marker.arithmeticEncoding(this.state.rows, textToEncode);
-      let decoded = marker.decodeArithmeticEncoding(this.state.rows, encoded, textToEncode.length);
+      let decoded = marker.decodeArithmeticEncoding(
+        this.state.rows,
+        encoded,
+        textToEncode.length
+      );
 
       let rowsAsString = this.state.rows.reduce((output, row) => {
-        return output + ` ${row.letter}: ${row.prob} | `
-      }, "")
+        return output + ` ${row.letter}: ${row.prob} | `;
+      }, "");
 
       this.setState({
         encoded: encoded,
@@ -170,24 +178,21 @@ class LetterInput extends Component {
         marker: foundMarker,
         rowsAsString: rowsAsString,
         decodedMarker: decodedMarker,
-        isAlghoritmicResultsModalVisible: true,
-      })
-    }
-    catch (err) {
-      this.props.showSnackbar(err.message, "error")
+        isAlghoritmicResultsModalVisible: true
+      });
+    } catch (err) {
+      this.props.showSnackbar(err.message, "error");
       this.setState({
-        isAlghoritmicResultsModalVisible: false,
-      })
+        isAlghoritmicResultsModalVisible: false
+      });
     }
-
-  }
+  };
 
   render() {
     const { classes } = this.props;
 
     return (
       <div className="letterInput-container">
-
         <Paper>
           <Table>
             <TableHead>
@@ -258,10 +263,15 @@ class LetterInput extends Component {
               <ScatterPlot />
             </Fab>
           </Tooltip>
-
         </section>
 
-        <InputModal close={() => this.setState({ isInputModalVisible: false })} isVisible={this.state.isInputModalVisible} onSubmit={(textToEncode) => this.encodeArithmetically(textToEncode)} placeholder="Słowo do zakodowania..." header="Kodowanie arytmetyczne" />
+        <InputModal
+          close={() => this.setState({ isInputModalVisible: false })}
+          isVisible={this.state.isInputModalVisible}
+          onSubmit={textToEncode => this.encodeArithmetically(textToEncode)}
+          placeholder="Słowo do zakodowania..."
+          header="Kodowanie arytmetyczne"
+        />
         <AlghoritmicResultsModal
           encoded={this.state.encoded}
           decoded={this.state.decoded}
@@ -269,15 +279,21 @@ class LetterInput extends Component {
           decodedMarker={this.state.decodedMarker}
           letters={this.state.rowsAsString}
           text={this.state.textToEncode}
-          close={() => this.setState({ isAlghoritmicResultsModalVisible: false })} isVisible={this.state.isAlghoritmicResultsModalVisible} />
+          close={() =>
+            this.setState({ isAlghoritmicResultsModalVisible: false })
+          }
+          isVisible={this.state.isAlghoritmicResultsModalVisible}
+        />
       </div>
     );
   }
 }
 const mapDispatchToProps = dispatch => ({
-  showSnackbar: (message, variant = "error", duration = 2000) => showSnackbar(message, variant, duration)(dispatch)
+  showSnackbar: (message, variant = "error", duration = 2000) =>
+    showSnackbar(message, variant, duration)(dispatch)
+});
 
-})
-
-export default connect(null, mapDispatchToProps)(withStyles(styles)(LetterInput));
-
+export default connect(
+  null,
+  mapDispatchToProps
+)(withStyles(styles)(LetterInput));

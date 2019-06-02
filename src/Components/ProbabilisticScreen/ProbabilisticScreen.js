@@ -1,21 +1,17 @@
 import React, { Component } from "react";
 import "./ProbabilisticScreen.css";
 import Word from "./Word";
-import {
-  Fab,
-  Tooltip,
-  withStyles,
-} from "@material-ui/core";
+import { Fab, Tooltip, withStyles } from "@material-ui/core";
 import InsertDriveFile from "@material-ui/icons/InsertDriveFile";
 import * as calc from "./../../logic/calc";
-import * as downloader from "./../../logic/downloader";
+import Downloader from "./../../logic/downloader";
 import { connect } from "react-redux";
-import { showSnackbar } from "../../actions"
+import { showSnackbar } from "../../actions";
 
 const styles = theme => ({
   fab: {
     margin: theme.spacing.unit,
-    fontSize: "1.50rem",
+    fontSize: "1.50rem"
   }
 });
 
@@ -29,9 +25,9 @@ class ProbabilisticScreen extends Component {
     };
   }
 
-  loadProbModelFromFile(file, type) {
-    if (type != "text/plain")
-      return this.props.showSnackbar("Niedozowlone rozszerzenie pliku", "error");
+  loadProbModelFromFile(file) {
+    if (file.type != "text/plain")
+      return this.props.showSnackbar("Niedozowlone rozszerzenie pliku");
 
     let fileReader = new FileReader();
     fileReader.onloadend = e => {
@@ -45,37 +41,28 @@ class ProbabilisticScreen extends Component {
     fileReader.readAsText(file);
   }
   isModelLoaded = () => {
-    if (this.state.loadedWords.length < 1) {
-      this.props.showSnackbar(
-        "Zanim wygenerujesz słowa, wczytaj plik zawierający czteroliterowe słowa.",
-        "error"
-      );
-      return false;
-    }
-
-    return true;
-  }
+    if (this.state.loadedWords.length < 1) return false;
+    else return true;
+  };
   generateWordsBasedOnModel(variant) {
-    if (!this.isModelLoaded()) return;
-    let words = [];
-    switch (variant) {
-      case "B":
-        words = calc.generateWordsForGivenModel(this.state.loadedWords, 4, 100, variant);
-        break;
-      case "C":
-        words = calc.generateWordsForGivenModel(this.state.loadedWords, 4, 100, variant);
-        break;
-      case "D":
-        //words = calc.generateProbModelForGivenWords(this.state.loadedWords);
-        break;
-      default:
-        words = calc.generateWordsForGivenModel(this.state.loadedWords, 4, 100, variant);
-        break;
+    try {
+      if (!this.isModelLoaded())
+        return this.props.showSnackbar(
+          "Zanim wygenerujesz słowa, stwórz model, wczytując plik zawierający przykładowe słowa"
+        );
+      let words = calc.generateWordsForGivenModel(
+        this.state.loadedWords,
+        4,
+        100,
+        variant
+      );
+
+      new Downloader().downloadWords(words, "words");
+    } catch (err) {
+      console.error(err);
+      this.props.showSnackbar(err.message);
     }
-
-    downloader.downloadTextArray(words, "words");
   }
-
 
   render() {
     const { classes } = this.props;
@@ -97,7 +84,6 @@ class ProbabilisticScreen extends Component {
           })}
         </ul>
         <div className="probScreen-fab-container">
-
           <Tooltip title="Generuj słowa w oparciu o wczytany model">
             <Fab
               onClick={() => this.generateWordsBasedOnModel("B")}
@@ -127,10 +113,14 @@ class ProbabilisticScreen extends Component {
             </Fab>
           </Tooltip>
           <Tooltip title="Wczytaj model">
-            <Fab color="secondary" className={classes.fab}>
-              <label htmlFor="probScreen-loadButton">
-                <InsertDriveFile />
-              </label>
+            <Fab
+              onClick={() =>
+                document.getElementById("probScreen-loadButton").click()
+              }
+              color="secondary"
+              className={classes.fab}
+            >
+              <InsertDriveFile />
             </Fab>
           </Tooltip>
           <input
@@ -138,12 +128,7 @@ class ProbabilisticScreen extends Component {
             hidden
             type="file"
             accept="text/plain"
-            onChange={e =>
-              this.loadProbModelFromFile(
-                e.target.files[0],
-                e.target.files[0].type
-              )
-            }
+            onChange={e => this.loadProbModelFromFile(e.target.files[0])}
           />
         </div>
       </section>
@@ -152,8 +137,11 @@ class ProbabilisticScreen extends Component {
 }
 
 const mapDispatchToProps = dispatch => ({
-  showSnackbar: (message, variant = "error", duration = 2000) => showSnackbar(message, variant, duration)(dispatch)
+  showSnackbar: (message, variant = "error", duration = 5000) =>
+    showSnackbar(message, variant, duration)(dispatch)
+});
 
-})
-
-export default connect(null, mapDispatchToProps)(withStyles(styles)(ProbabilisticScreen));
+export default connect(
+  null,
+  mapDispatchToProps
+)(withStyles(styles)(ProbabilisticScreen));

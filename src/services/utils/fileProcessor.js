@@ -1,6 +1,6 @@
-import { showLoading, hideLoading } from "../actions";
-import store from "../store";
-import { ArrayBufferToString } from "./arrayBuffer";
+import { showLoading, hideLoading } from "../../actions";
+import store from "../../store";
+import {ArrayBufferToString} from "./bits";
 
 export function readFileContent(file) {
   return new Promise((resolve, reject) => {

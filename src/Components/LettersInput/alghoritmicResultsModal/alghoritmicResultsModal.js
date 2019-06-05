@@ -10,7 +10,7 @@ export default class AlghoritmicResultsModal extends Component {
 
     handleClose = () => {
         this.props.close();
-    }
+    };
     render() {
         return (
             <Dialog open={this.props.isVisible} onClose={this.handleClose}>
@@ -65,4 +65,4 @@ AlghoritmicResultsModal.propTypes = {
         PropTypes.number
     ]),
     text: PropTypes.string
-}
+};

@@ -37,17 +37,17 @@ function bwt(O) {
 
 function mtf(O, text) {
   console.log(text);
-  let symbols = [...new Set(O.split(""))]
-  symbols =  symbols.sort();
+  let symbols = [...new Set(O.split(""))];
+  symbols = symbols.sort();
   console.log(symbols);
   let output = "";
   let splitedText = text.split("");
   O = O.split("");
-  
+
   for (let symbol of splitedText) {
     let code = symbols.indexOf(symbol);
     output += code;
-    symbols.unshift(...symbols.splice(code, 1))
+    symbols.unshift(...symbols.splice(code, 1));
     console.log(symbols);
   }
   let prevChar = output[0];
@@ -59,9 +59,8 @@ function mtf(O, text) {
   return output;
 }
 
-
 let shiftedText = cycleShift(text).sort();
-console.log(shiftedText)
+console.log(shiftedText);
 
 let I = shiftedText.indexOf(text);
 console.log("I", I);

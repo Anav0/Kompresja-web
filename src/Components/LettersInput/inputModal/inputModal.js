@@ -11,7 +11,7 @@ import {
 
 export default class InputModal extends Component {
     constructor(props) {
-        super(props)
+        super(props);
 
         this.state = {
             inputValue: "",
@@ -20,20 +20,20 @@ export default class InputModal extends Component {
     handleEnter = (e) => {
         if (e.key !== "Enter") return;
         this.handleSubmit();
-    }
+    };
     handleSubmit = () => {
         let trimedInput = this.state.inputValue.trim();
         if (trimedInput == "")
             return;
         this.props.onSubmit(trimedInput);
         this.handleClose();
-    }
+    };
     handleChange = (e) => {
         this.setState({ inputValue: e.target.value })
-    }
+    };
     handleClose = () => {
         this.props.close();
-    }
+    };
     render() {
         return (
             <Dialog open={this.props.isVisible} onClose={this.handleClose}>
@@ -63,4 +63,4 @@ InputModal.propTypes = {
     isVisible: PropTypes.bool,
     header: PropTypes.string,
     placeholder: PropTypes.string,
-}
+};

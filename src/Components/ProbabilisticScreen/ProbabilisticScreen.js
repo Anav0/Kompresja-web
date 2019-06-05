@@ -3,10 +3,10 @@ import "./ProbabilisticScreen.css";
 import Word from "./Word";
 import { Fab, Tooltip, withStyles } from "@material-ui/core";
 import InsertDriveFile from "@material-ui/icons/InsertDriveFile";
-import * as calc from "./../../logic/calc";
-import Downloader from "./../../logic/downloader";
 import { connect } from "react-redux";
 import { showSnackbar } from "../../actions";
+import {generateProbModelForGivenWords, generateWordsForGivenModel} from "../../services/encoding/generator";
+import Downloader from "../../services/utils/downloader";
 
 const styles = theme => ({
   fab: {
@@ -32,7 +32,7 @@ class ProbabilisticScreen extends Component {
     let fileReader = new FileReader();
     fileReader.onloadend = e => {
       let words = fileReader.result.split(/\r?\n/);
-      let model = calc.generateProbModelForGivenWords(words);
+      let model = generateProbModelForGivenWords(words);
       this.setState({
         numberOfWords: words.length - 1,
         loadedWords: model
@@ -50,7 +50,7 @@ class ProbabilisticScreen extends Component {
         return this.props.showSnackbar(
           "Zanim wygenerujesz słowa, stwórz model, wczytując plik zawierający przykładowe słowa"
         );
-      let words = calc.generateWordsForGivenModel(
+      let words = generateWordsForGivenModel(
         this.state.loadedWords,
         4,
         100,

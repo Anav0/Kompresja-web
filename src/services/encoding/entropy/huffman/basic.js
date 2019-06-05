@@ -1,5 +1,6 @@
-import * as calc from "../calc";
+
 import _ from "lodash";
+import {calculateLetters, calculateLettersDystribution, calculateLettersProb} from "../basic";
 
 export function getLettersFromTree(tree) {
   if (!tree)
@@ -46,7 +47,7 @@ export function getLettersFromTree(tree) {
 export function getTreeFromSentence(sentence) {
   if (!sentence || sentence.length < 1) throw new Error("Zdanie jest puste");
 
-  var letters = calc.calculateLetters(sentence);
+  var letters = calculateLetters(sentence);
   return getTreeFromLetters(letters);
 }
 
@@ -58,8 +59,8 @@ export function getTreeFromLetters(letters) {
 
   if (copyLetters.filter(x => !x.prob || !x.dyst).length != 0) {
     //throw new Error("Część symboli nie mają obliczonego prawdopodobieństwa i dystrybuanty");
-    copyLetters = calc.calculateLettersProb(copyLetters);
-    copyLetters = calc.calculateLettersDystribution(copyLetters);
+    copyLetters = calculateLettersProb(copyLetters);
+    copyLetters = calculateLettersDystribution(copyLetters);
   }
 
   if (copyLetters.length == 1) {

@@ -20,7 +20,8 @@ import {
 import { connect } from "react-redux";
 import { showSnackbar } from "../../actions";
 import { Link } from "react-router-dom";
-import { readFileContent, getFileExtention } from "../../logic/fileProcessor";
+import {getFileExtention, readFileContent} from "../../services/utils";
+
 
 const styles = {
   root: {},

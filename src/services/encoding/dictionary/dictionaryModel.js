@@ -1,16 +1,14 @@
-import { calculateLetters } from "./calc";
-import { addBitsLeft } from "./bits";
+import {addBitsLeft} from "../../utils";
+import {calculateLetters} from "../entropy";
 
 export default class EncodingDictionary {
   constructor(source, dictionarySize = 254) {
+    if(!source || !dictionarySize) throw new Error("Arguments cannot be null")
+
     this.dictionarySize = dictionarySize;
     this.source = source;
     this.dictionary = createDictionary(source, dictionarySize);
   }
-
-  // get dictionarySize() { return this.dictionarySize; }
-  // get source() { return this.source; }
-  // get dictionary() { return this.dictionary; }
 
   encode(text) {
     if (!text) throw new Error("Nieprawidłowy argument funkcji");

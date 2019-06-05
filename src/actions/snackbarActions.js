@@ -9,9 +9,9 @@ export const showSnackbar = (message, variant, duration = 2000) => (dispatch) =>
             message: message
         },
     })
-}
+};
 export const hideSnackbar = (dispatch) => {
     dispatch({
         type: HIDE_SNACKBAR,
     })
-}
+};

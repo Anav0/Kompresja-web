@@ -5,11 +5,11 @@ export const showLoading = (dispatch) => {
         type: SHOW_LOADING,
         payload: true,
     })
-}
+};
 
 export const hideLoading = (dispatch) => {
     dispatch({
         type: HIDE_LOADING,
         payload: false,
     })
-}
+};

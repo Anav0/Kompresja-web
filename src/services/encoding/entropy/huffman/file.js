@@ -2,8 +2,7 @@ import {
   readFileContent,
   getFileExtention,
   getFileName
-} from "../fileProcessor";
-import Downloader from "../downloader";
+} from "../../../utils/fileProcessor";
 import {
   encode,
   getLettersFromTree,
@@ -11,6 +10,7 @@ import {
   decode
 } from "./basic";
 import _ from "lodash";
+import Downloader from "../../../utils/downloader";
 const downloader = new Downloader(8);
 
 export function compressFile(file) {

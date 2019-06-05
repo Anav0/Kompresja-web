@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import Paper from "@material-ui/core/Paper";
+import { Popover, Paper } from "@material-ui/core";
+import PopoverAnimationVertical from "@material-ui/core/Paper"
 import Info from "@material-ui/icons/Info";
-import Popover, { PopoverAnimationVertical } from "@material-ui/core/Popover";
 import "./BottomResult.css";
 
 export default class BottomResult extends Component {

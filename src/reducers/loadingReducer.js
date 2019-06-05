@@ -2,7 +2,7 @@ import { SHOW_LOADING, HIDE_LOADING } from "../actions";
 
 const initialState = {
     isLoading: false
-}
+};
 
 export default function loading(state = initialState, action) {
 

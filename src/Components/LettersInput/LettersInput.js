@@ -1,9 +1,5 @@
 import React, { Component } from "react";
 import "./LettersInput.css";
-import * as calc from "./../../logic/calc";
-import Downloader from "../../logic/downloader";
-import * as huffman from "../../logic/huffman";
-import * as marker from "../../logic/marker";
 import InputModal from "./inputModal/inputModal";
 import AlghoritmicResultsModal from "./alghoritmicResultsModal/alghoritmicResultsModal";
 import {
@@ -22,6 +18,16 @@ import {
 import { Casino, InsertDriveFile, ScatterPlot } from "@material-ui/icons";
 import { connect } from "react-redux";
 import { showSnackbar } from "../../actions";
+import {generateStringWithGivenProb, generateWordsForGivenModel} from "../../services/encoding/generator";
+import {getLettersFromTree, getTreeFromSentence} from "../../services/encoding/entropy/huffman";
+import {calculateLetters, calculateLettersDystribution} from "../../services/encoding/entropy";
+import {
+  arithmeticEncoding,
+  decodeArithmeticEncoding,
+  decodeMarker,
+  findMarker
+} from "../../services/encoding/entropy/arithmetic";
+import Downloader from "../../services/utils/downloader";
 
 const styles = theme => ({
   fab: {
@@ -94,9 +100,9 @@ class LetterInput extends Component {
       return this.props.showSnackbar("Prawdopodobieństwo nie sumuje się do 1");
 
     try {
-      let sentence = calc.generateStringWithGivenProb(this.state.rows);
-      let tree = huffman.getTreeFromSentence(sentence);
-      let letters = huffman.getLettersFromTree(tree);
+      let sentence = generateStringWithGivenProb(this.state.rows);
+      let tree = getTreeFromSentence(sentence);
+      let letters = getLettersFromTree(tree);
       this.props.onCalculate(letters, sentence);
     } catch (err) {
       this.props.showSnackbar(err.message, "error");
@@ -137,12 +143,12 @@ class LetterInput extends Component {
   }
 
   downloadRandomWords = () => {
-    let stringBasedOnLetters = calc.generateStringWithGivenProb(
+    let stringBasedOnLetters = generateStringWithGivenProb(
       this.state.rows
     );
-    let letters = calc.calculateLetters(stringBasedOnLetters);
-    letters = calc.calculateLettersDystribution(letters);
-    let words = calc.generateWordsForGivenModel(letters, 4, 100, "B");
+    let letters = calculateLetters(stringBasedOnLetters);
+    letters = calculateLettersDystribution(letters);
+    let words = generateWordsForGivenModel(letters, 4, 100, "B");
     new Downloader().downloadWords(words, "words");
   };
 
@@ -154,14 +160,14 @@ class LetterInput extends Component {
           "error"
         );
 
-      let foundMarker = marker.findMarker(this.state.rows, textToEncode);
-      let decodedMarker = marker.decodeMarker(
+      let foundMarker = findMarker(this.state.rows, textToEncode);
+      let decodedMarker = decodeMarker(
         this.state.rows,
         foundMarker,
         textToEncode.length
       );
-      let encoded = marker.arithmeticEncoding(this.state.rows, textToEncode);
-      let decoded = marker.decodeArithmeticEncoding(
+      let encoded = arithmeticEncoding(this.state.rows, textToEncode);
+      let decoded = decodeArithmeticEncoding(
         this.state.rows,
         encoded,
         textToEncode.length

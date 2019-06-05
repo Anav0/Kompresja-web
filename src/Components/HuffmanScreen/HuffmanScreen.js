@@ -2,14 +2,12 @@ import React, { Component } from "react";
 import "./HuffmanScreen.css";
 import { connect } from "react-redux";
 import { showSnackbar, showLoading, hideLoading } from "../../actions";
-import _ from "lodash";
 import {
   compressFile,
   getTreeFromFile,
   decompressFile
-} from "../../logic/huffman";
-import Downloader from "../../logic/downloader";
-import { getFileName } from "../../logic/fileProcessor";
+} from "../../services/encoding/entropy/huffman";
+import Downloader from "../../services/utils/downloader";
 
 class HuffmanScreen extends Component {
   constructor(props) {
@@ -45,6 +43,7 @@ class HuffmanScreen extends Component {
 
     decompressFile(files[0], this.state.tree)
       .then(data => {
+        new Downloader().download(data.content,files[0].name.split(".")[0],data.type);
         this.props.onFileDecompressed(data.content);
       })
       .catch(err => {

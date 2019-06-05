@@ -1,4 +1,3 @@
-import { isEmpty } from "./calc";
 import { addBitsRight } from "./bits";
 
 export default class Downloader {
@@ -35,7 +34,7 @@ export default class Downloader {
   }
 
   minimize(bits) {
-    if (isEmpty(bits)) throw new Error("Argument nie może być null");
+    if (!bits) throw new Error("Argument nie może być null");
 
     bits = bits.toString();
 

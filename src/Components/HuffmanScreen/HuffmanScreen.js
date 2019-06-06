@@ -8,6 +8,7 @@ import {
   decompressFile
 } from "../../services/encoding/entropy/huffman";
 import Downloader from "../../services/utils/downloader";
+import { getFileName } from "../../services/utils";
 
 class HuffmanScreen extends Component {
   constructor(props) {
@@ -25,6 +26,7 @@ class HuffmanScreen extends Component {
 
     compressFile(files[0]).catch(err => {
       console.error(err);
+      this.props.hideLoading();
       this.props.showSnackbar(err.message);
     });
   }
@@ -32,8 +34,10 @@ class HuffmanScreen extends Component {
   decompressFiles(files) {
     this.props.showLoading();
 
-    if (!files || files.length < 1)
+    if (!files || files.length < 1) {
+      this.props.hideLoading();
       return this.props.showSnackbar("Nie wybrano pliku", "error");
+    }
 
     if (!this.state.tree)
       return this.props.showSnackbar(
@@ -43,7 +47,8 @@ class HuffmanScreen extends Component {
 
     decompressFile(files[0], this.state.tree)
       .then(data => {
-        new Downloader().download(data.content,files[0].name.split(".")[0],data.type);
+        let content = new TextEncoder().encode(data.content)
+        new Downloader().download(content, getFileName(files[0]), data.type);
         this.props.onFileDecompressed(data.content);
       })
       .catch(err => {
@@ -55,8 +60,10 @@ class HuffmanScreen extends Component {
 
   readTreeFromFile = files => {
     this.props.showLoading();
-    if (!files || files.length < 1)
+    if (!files || files.length < 1) {
+      this.props.hideLoading();
       return this.props.showSnackbar("Nie wybrano pliku", "error");
+    }
 
     getTreeFromFile(files[0])
       .then(tree => {
@@ -105,6 +112,7 @@ class HuffmanScreen extends Component {
     );
   }
 }
+
 const mapDispatchToProps = dispatch => ({
   showSnackbar: (message, variant = "error", duration = 2000) =>
     showSnackbar(message, variant, duration)(dispatch),

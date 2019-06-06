@@ -11,13 +11,16 @@ import {
 } from "./basic";
 import _ from "lodash";
 import Downloader from "../../../utils/downloader";
+import { ArrayBufferToString } from "../../../utils";
 const downloader = new Downloader(8);
 
 export function compressFile(file) {
   return new Promise((resolve, reject) => {
     if (!file) reject(new Error("Argument cannot be null"));
-    readFileContent(file).then(content => {
+    readFileContent(file).then(buffer => {
       try {
+
+        let content = ArrayBufferToString(buffer);
         let tree = getTreeFromSentence(content);
         let letters = getLettersFromTree(tree);
         let huffmanEncoded = encode(content, _.cloneDeep(letters));
@@ -58,9 +61,9 @@ export function getTreeFromFile(file) {
   return new Promise((resolve, reject) => {
     if (!file) reject(new Error("Argument cannot be null"));
     readFileContent(file)
-      .then(content => {
+      .then(buffer => {
+        let content = ArrayBufferToString(buffer);
         let parsed = JSON.parse(content);
-
         resolve(parsed);
       })
       .catch(err => {
@@ -77,7 +80,8 @@ export function decompressFile(file, tree) {
       reject(new Error("Nieprawidłowe rozszerzenie pliku"));
 
     readFileContent(file)
-      .then(content => {
+      .then(buffer => {
+        let content = ArrayBufferToString(buffer);
         let splited = content.split("\n");
         let originalFileType = splited[0];
         let originalTextLength = splited[1];

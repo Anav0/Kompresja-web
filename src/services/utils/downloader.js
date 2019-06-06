@@ -1,4 +1,4 @@
-import { addBitsRight } from "./bits";
+import { addBitsRight, addBitsLeft } from "./bits";
 
 export default class Downloader {
   constructor(bitsGroupSize = 8) {
@@ -35,11 +35,8 @@ export default class Downloader {
 
   minimize(bits) {
     if (!bits) throw new Error("Argument nie może być null");
-
     bits = bits.toString();
-
     let splited = bits.split("");
-
     let test = splited.filter(x => x != "1" && x != "0");
     if (test.length != 0) throw new Error("Nieprawidłowa wartość binarna");
 
@@ -76,18 +73,11 @@ export default class Downloader {
 
   decodeMinimize(code) {
     if (!code) throw new Error("Argument nie może być null");
-
     let output = "";
-
     for (let i = 0; i < code.length; i++) {
       const character = code.charCodeAt(i);
-
       let bajt = character.toString(2);
-
-      while (bajt.length < this.groupSize) {
-        bajt = "0" + bajt;
-      }
-
+      bajt = addBitsLeft(bajt, this.groupSize)
       output += bajt;
     }
 

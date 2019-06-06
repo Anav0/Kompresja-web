@@ -7,7 +7,6 @@ import {
 } from '@material-ui/core';
 
 export default class AlghoritmicResultsModal extends Component {
-
     handleClose = () => {
         this.props.close();
     };
@@ -17,27 +16,27 @@ export default class AlghoritmicResultsModal extends Component {
                 <Paper className="alghoritmicResultsModal-container" elevation={1}>
                     <section className="alghoritmicResultsModal-section">
                         <h3>Ciąg</h3>
-                        <span>{this.props.text}</span>
+                        <span className="alghoritmicResultsModal-section-value">{this.props.text}</span>
                     </section>
                     <section className="alghoritmicResultsModal-section">
                         <h3>Znaki</h3>
-                        <span>{this.props.letters}</span>
+                        <span className="alghoritmicResultsModal-section-value">{this.props.letters}</span>
                     </section>
                     <section className="alghoritmicResultsModal-section">
                         <h3>Zakodowany arytmetycznie</h3>
-                        <span>{this.props.encoded}</span>
+                        <span className="alghoritmicResultsModal-section-value">{this.props.encoded}</span>
                     </section>
                     <section className="alghoritmicResultsModal-section">
                         <h3>Odkodowany arytmetycznie</h3>
-                        <span>{this.props.decoded}</span>
+                        <span className="alghoritmicResultsModal-section-value">{this.props.decoded}</span>
                     </section>
                     <section className="alghoritmicResultsModal-section">
                         <h3>Znacznik</h3>
-                        <span>{this.props.marker}</span>
+                        <span className="alghoritmicResultsModal-section-value">{this.props.marker}</span>
                     </section>
                     <section className="alghoritmicResultsModal-section">
                         <h3>Odkodowany znacznik</h3>
-                        <span>{this.props.decodedMarker}</span>
+                        <span className="alghoritmicResultsModal-section-value">{this.props.decodedMarker}</span>
                     </section>
                 </Paper>
             </Dialog>

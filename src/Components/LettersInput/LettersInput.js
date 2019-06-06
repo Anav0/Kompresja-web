@@ -44,7 +44,8 @@ class LetterInput extends Component {
       rows: [
         { id: 1, letter: "a", prob: 0.8 },
         { id: 2, letter: "b", prob: 0.02 },
-        { id: 3, letter: "c", prob: 0.18 }
+        { id: 3, letter: "c", prob: 0.18 },
+
       ],
       encoded: null,
       rowsAsString: null,
@@ -88,13 +89,11 @@ class LetterInput extends Component {
     e.preventDefault();
     this.setState({ newLetter: e.target.value });
   }
-
   getSumOfRowProbability = () => {
     return this.state.rows.reduce((prev, curr) => {
       return prev + +curr.prob;
     }, 0);
   };
-
   generateTextAndHuffmanCode() {
     if (this.getSumOfRowProbability() != 1)
       return this.props.showSnackbar("Prawdopodobieństwo nie sumuje się do 1");
@@ -108,7 +107,6 @@ class LetterInput extends Component {
       this.props.showSnackbar(err.message, "error");
     }
   }
-
   handleExistingLetterChange(e, row) {
     if (e.target.value.length != 1)
       return this.props.showSnackbar("Wpisz pojedynczy znak", "error");
@@ -122,7 +120,6 @@ class LetterInput extends Component {
       rows: newRows
     });
   }
-
   handleExistingProbChange(e, row) {
     let newRows = this.state.rows;
 
@@ -141,7 +138,6 @@ class LetterInput extends Component {
       rows: newRows
     });
   }
-
   downloadRandomWords = () => {
     let stringBasedOnLetters = generateStringWithGivenProb(
       this.state.rows
@@ -151,7 +147,6 @@ class LetterInput extends Component {
     let words = generateWordsForGivenModel(letters, 4, 100, "B");
     new Downloader().downloadWords(words, "words");
   };
-
   encodeArithmetically = textToEncode => {
     try {
       if (this.getSumOfRowProbability() != 1)

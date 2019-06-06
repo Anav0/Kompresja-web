@@ -1,5 +1,5 @@
 import { allTextSymbolsInArray } from "../../../utils";
-import {calculateLettersDystribution} from "../basic";
+import { calculateLettersDystribution } from "../basic";
 
 export function arithmeticEncoding(letters, textToEncode) {
     let d = [0];
@@ -18,41 +18,33 @@ export function arithmeticEncoding(letters, textToEncode) {
     letters.map(letter => Fx.push(letter.dyst));
 
     const symbols = textToEncode.split("");
-    for (let i = 1; i < symbols.length; i++) {
-        let encoding = letters.findIndex(x => x.letter == symbols[i - 1]) + 1;
-
-        dtmp = d[i - 1] + (g[i - 1] - d[i - 1]) * Fx[encoding - 1];
-        gtmp = d[i - 1] + (g[i - 1] - d[i - 1]) * Fx[encoding];
-
+    for (let i = 0; i < symbols.length; i++) {
+        let encoding = letters.findIndex(x => x.letter == symbols[i]) + 1;
+        dtmp = d[i] + (g[i] - d[i]) * Fx[encoding - 1];
+        gtmp = d[i] + (g[i] - d[i]) * Fx[encoding];
         d.push(dtmp);
         g.push(gtmp);
-
         do {
             //[0, 0.5) A
             if (dtmp >= 0 && gtmp < 0.5) {
                 binary += "0";
-
                 //skalowanie
                 dtmp = 2 * dtmp;
                 gtmp = 2 * gtmp;
                 d.splice(d.length - 1, 1, dtmp);
                 g.splice(g.length - 1, 1, gtmp);
                 c = false;
-
                 continue;
             }
             if (dtmp >= 0.5 && gtmp < 1) {
                 //[0.5, 1) B
                 binary += "1";
-
                 //skalowanie
                 dtmp = 2 * (dtmp - 0.5);
                 gtmp = 2 * (gtmp - 0.5);
                 d.splice(d.length - 1, 1, dtmp);
                 g.splice(g.length - 1, 1, gtmp);
-
                 c = false;
-
                 continue;
             }
             //[0, 1) C
@@ -61,13 +53,14 @@ export function arithmeticEncoding(letters, textToEncode) {
             }
         } while (!c);
     }
-
     if (c) {
+        console.log(dtmp, gtmp);
         let number = Math.round(dtmp * 10) / 10;
+        if (0.5 >= dtmp && 0.5 < gtmp)
+            number = 0.5;
         let bin = number.toString(2);
         let splited = bin.split(".");
-        console.error(bin, splited);
-
+        console.error(number, bin, splited);
         if (splited.length > 2)
             throw new Error("Something went terribly wrong :c");
 
@@ -77,7 +70,7 @@ export function arithmeticEncoding(letters, textToEncode) {
             binary += splited[1];
     }
 
-    return binary.toString(2);
+    return binary;
 }
 
 export function improvedArithmeticEncoding(letters, textToEncode) {
@@ -155,7 +148,6 @@ export function improvedArithmeticEncoding(letters, textToEncode) {
                 isD = false;
 
 
-
             } else {
                 isD = true;
             }
@@ -178,7 +170,7 @@ export function decodeArithmeticEncoding(letters, binary, length) {
     letters.map(letter => Fx.push(letter.dyst));
 
     let smallestSection = Number.MAX_VALUE;
-    for (let k = 1; k < Fx.length; k++) {
+    for (let k = 0; k < Fx.length; k++) {
         for (let o = 1; o < Fx.length; o++) {
             if (o == k) continue;
 
@@ -187,30 +179,26 @@ export function decodeArithmeticEncoding(letters, binary, length) {
         }
     }
 
-    let k = Math.round([-Math.log2(smallestSection)] + 1);
+    let k = Math.round([-Math.log2(smallestSection)] + 1); //TODO: Math.log2 czy Math.log?
     let firstkBits = binary.substring(0, k);
-    firstkBits = firstkBits.toString();
+    //firstkBits = firstkBits.toString();
 
-    for (let i = 1; i < length + 1; i++) {
+    for (let i = 0; i < length; i++) {
         let marker = ("0." + firstkBits).parseBinary();
-        let t = ((marker - d[i - 1]) / (g[i - 1] - d[i - 1]));
+        let t = ((marker - d[i]) / (g[i] - d[i]));
 
-        for (let j = 1; j < Fx.length + 1; j++) {
-            if (Fx[j - 1] <= t && t < Fx[j]) {
-                let dtmp = d[i - 1] + (g[i - 1] - d[i - 1]) * Fx[j - 1];
-                let gtmp = d[i - 1] + (g[i - 1] - d[i - 1]) * Fx[j];
-
+        for (let j = 0; j < Fx.length; j++) {
+            if (Fx[j] <= t && t < Fx[j + 1]) {
+                let dtmp = d[i] + (g[i] - d[i]) * Fx[j];
+                let gtmp = d[i] + (g[i] - d[i]) * Fx[j + 1];
+                console.log(marker, t, dtmp, gtmp);
                 d.push(dtmp);
                 g.push(gtmp);
-
                 let isC = false;
                 do {
-
                     //[0, 0.5) A
                     if (dtmp >= 0 && gtmp < 0.5) {
-
                         firstkBits = firstkBits.slice(1);
-
                         let shiftedBinary = [...binary][k];
                         if (!shiftedBinary)
                             firstkBits += "0";
@@ -222,10 +210,8 @@ export function decodeArithmeticEncoding(letters, binary, length) {
                         d.splice(d.length - 1, 1, dtmp);
                         g.splice(g.length - 1, 1, gtmp);
                         isC = false;
-
                         //[0.5, 1) B
                     } else if (dtmp >= 0.5 && gtmp < 1) {
-
                         firstkBits = firstkBits.slice(1);
                         let shiftedBinary = [...binary][k];
                         if (!shiftedBinary)
@@ -237,9 +223,7 @@ export function decodeArithmeticEncoding(letters, binary, length) {
                         gtmp = 2 * (gtmp - 0.5);
                         d.splice(d.length - 1, 1, dtmp);
                         g.splice(g.length - 1, 1, gtmp);
-
                         isC = false;
-
                     }
                     //[0, 1) C
                     else if (dtmp >= 0 && gtmp < 1) {
@@ -247,7 +231,7 @@ export function decodeArithmeticEncoding(letters, binary, length) {
                     }
                 } while (!isC);
 
-                decoded += letters.findIndex(x => x.dyst === Fx[j]) + 1;
+                decoded += letters.findIndex(x => x.dyst === Fx[j + 1]) + 1;
             }
         }
     }

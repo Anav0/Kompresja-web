@@ -17,6 +17,8 @@ Każdy kto tylko chce może używać tego programu w dowolnym zakresie ale na w
 3. **npm install** - zainstaluje zależności
 4. **npm start** - uruchomi program
 
+[![buddy pipeline](https://app.buddy.works/igormotyka/kompresja-web/pipelines/pipeline/191648/badge.svg?token=c7afe300d501a9dd0617f704027ea904a7bb10e7ef1453a30ea1f2281ccd0f69 "buddy pipeline")](https://app.buddy.works/igormotyka/kompresja-web/pipelines/pipeline/191648)
+
 
 
 

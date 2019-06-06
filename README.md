@@ -1,4 +1,5 @@
-# Kodowanie web
+# Kodowanie web 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/3b97b1a2-555e-4d3b-8cf8-db4f370ec8a1/deploy-status)](https://app.netlify.com/sites/kompresja/deploys)
 
 Jest to program stworzony na potrzeby kursu KiK w celu lepszego zrozumienia omawianych zagadnień jak i sprawdzenia poprawności uzyskiwanych obliczeń.
 
@@ -16,10 +17,3 @@ Każdy kto tylko chce może używać tego programu w dowolnym zakresie ale na w
 2. Wejdź poprzez terminal do głównego folderu **cd /your_path/kompresja-web/**
 3. **npm install** - zainstaluje zależności
 4. **npm start** - uruchomi program
-
-[![buddy pipeline](https://app.buddy.works/igormotyka/kompresja-web/pipelines/pipeline/191648/badge.svg?token=c7afe300d501a9dd0617f704027ea904a7bb10e7ef1453a30ea1f2281ccd0f69 "buddy pipeline")](https://app.buddy.works/igormotyka/kompresja-web/pipelines/pipeline/191648)
-
-
-
-
-
